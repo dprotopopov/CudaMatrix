@@ -1,0 +1,10 @@
+D:\Projects\CudaMatrix\CudaMatrix.Editor\bin\Release\CudaMatrix.Editor.exe.config
+D:\Projects\CudaMatrix\CudaMatrix.Editor\obj\Release\CudaMatrix.Editor.csprojResolveAssemblyReference.cache
+D:\Projects\CudaMatrix\CudaMatrix.Editor\obj\Release\CudaMatrix.Editor.MainForm.resources
+D:\Projects\CudaMatrix\CudaMatrix.Editor\obj\Release\CudaMatrix.Editor.MatrixForm.resources
+D:\Projects\CudaMatrix\CudaMatrix.Editor\obj\Release\CudaMatrix.Editor.Properties.Resources.resources
+D:\Projects\CudaMatrix\CudaMatrix.Editor\obj\Release\CudaMatrix.Editor.csproj.GenerateResource.Cache
+D:\Projects\CudaMatrix\CudaMatrix.Editor\bin\Release\CudaMatrix.Editor.exe
+D:\Projects\CudaMatrix\CudaMatrix.Editor\bin\Release\CudaMatrix.Editor.pdb
+D:\Projects\CudaMatrix\CudaMatrix.Editor\obj\Release\CudaMatrix.Editor.exe
+D:\Projects\CudaMatrix\CudaMatrix.Editor\obj\Release\CudaMatrix.Editor.pdb

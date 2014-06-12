@@ -1,0 +1,17 @@
+﻿Сборка начата 12.06.2014 18:07:13.
+     1>Проект "D:\Projects\CudaMatrix\calculator\calculator.vcxproj" в узле 3 (целевые объекты Rebuild).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /sdl /O2 /Oi /GL /D _MBCS /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Release\\" /Fd"x64\Release\vc110.pdb" /Gd /TP /errorReport:prompt sample.flex.cpp sample.tab.cpp
+         sample.flex.cpp
+         sample.tab.cpp
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Projects\CudaMatrix\x64\Release\calculator.exe" /NOLOGO kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\Projects\CudaMatrix\x64\Release\calculator.pdb" /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Projects\CudaMatrix\x64\Release\calculator.lib" /MACHINE:X64 x64\Release\sample.flex.obj
+         x64\Release\sample.tab.obj
+         Создание кода
+         Создание кода завершено
+         calculator.vcxproj -> D:\Projects\CudaMatrix\x64\Release\calculator.exe
+     1>Построение проекта "D:\Projects\CudaMatrix\calculator\calculator.vcxproj" завершено (целевые объекты Rebuild).
+
+Построение успешно завершено.
+
+Затраченное время: 00:00:02.13
