@@ -15,10 +15,6 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <None Include="sample.l" />
-    <None Include="sample.y" />
-  </ItemGroup>
-  <ItemGroup>
     <ClInclude Include="sample.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
@@ -33,5 +29,11 @@
     <ClCompile Include="sample.tab.cpp">
       <Filter>Файлы исходного кода</Filter>
     </ClCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Bison Include="sample.y" />
+  </ItemGroup>
+  <ItemGroup>
+    <Flex Include="sample.l" />
   </ItemGroup>
 </Project>
