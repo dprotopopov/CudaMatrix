@@ -1,16 +1,16 @@
 %{
-#define _CRT_SECURE_NO_WARNINGS
 
 #include <string.h>
 #include "matrix.tab.h"
 #include "matrix.h"
+#include "externs.h"
 
 void yyerror(char *);
 
 %}
 %%
 \"[^\"]*\" {
-	int len = strlen(yytext)-2;
+	size_t len = strlen(yytext)-2;
 	char * buffer = (char *)malloc(len+1);
 	strncpy(buffer, &yytext[1], len);
 	buffer[len] = '\0';

@@ -70,6 +70,7 @@
             this.tabPageC = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.textBoxLog = new System.Windows.Forms.TextBox();
+            this.radioButtonRotate = new System.Windows.Forms.RadioButton();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -155,7 +156,7 @@
             this.groupBox6.Controls.Add(this.label8);
             this.groupBox6.Controls.Add(this.label7);
             this.groupBox6.Controls.Add(this.label6);
-            this.groupBox6.Location = new System.Drawing.Point(28, 510);
+            this.groupBox6.Location = new System.Drawing.Point(28, 525);
             this.groupBox6.Name = "groupBox6";
             this.groupBox6.Size = new System.Drawing.Size(325, 129);
             this.groupBox6.TabIndex = 3;
@@ -228,12 +229,13 @@
             // 
             // groupBox5
             // 
+            this.groupBox5.Controls.Add(this.radioButtonRotate);
             this.groupBox5.Controls.Add(this.radioButtonProduct);
             this.groupBox5.Controls.Add(this.radioButtonMinus);
             this.groupBox5.Controls.Add(this.radioButtonPlus);
             this.groupBox5.Location = new System.Drawing.Point(28, 207);
             this.groupBox5.Name = "groupBox5";
-            this.groupBox5.Size = new System.Drawing.Size(325, 129);
+            this.groupBox5.Size = new System.Drawing.Size(325, 150);
             this.groupBox5.TabIndex = 2;
             this.groupBox5.TabStop = false;
             this.groupBox5.Text = "groupBox5";
@@ -431,7 +433,7 @@
             this.groupBox3.Controls.Add(this.numericUpDownBlocks1);
             this.groupBox3.Controls.Add(this.label2);
             this.groupBox3.Controls.Add(this.label1);
-            this.groupBox3.Location = new System.Drawing.Point(28, 353);
+            this.groupBox3.Location = new System.Drawing.Point(28, 373);
             this.groupBox3.Name = "groupBox3";
             this.groupBox3.Size = new System.Drawing.Size(325, 137);
             this.groupBox3.TabIndex = 0;
@@ -633,6 +635,17 @@
             this.textBoxLog.Size = new System.Drawing.Size(1061, 147);
             this.textBoxLog.TabIndex = 0;
             // 
+            // radioButtonRotate
+            // 
+            this.radioButtonRotate.AutoSize = true;
+            this.radioButtonRotate.Location = new System.Drawing.Point(90, 112);
+            this.radioButtonRotate.Name = "radioButtonRotate";
+            this.radioButtonRotate.Size = new System.Drawing.Size(66, 21);
+            this.radioButtonRotate.TabIndex = 3;
+            this.radioButtonRotate.TabStop = true;
+            this.radioButtonRotate.Text = "rotate";
+            this.radioButtonRotate.UseVisualStyleBackColor = true;
+            // 
             // MatrixForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
@@ -722,5 +735,6 @@
         private System.Windows.Forms.Label label11;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.Label label9;
+        private System.Windows.Forms.RadioButton radioButtonRotate;
     }
 }

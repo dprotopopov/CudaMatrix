@@ -528,11 +528,11 @@ int yy_flex_debug = 0;
 char *yytext;
 #line 1 "matrix.l"
 #line 2 "matrix.l"
-#define _CRT_SECURE_NO_WARNINGS
 
 #include <string.h>
 #include "matrix.tab.h"
 #include "matrix.h"
+#include "externs.h"
 
 void yyerror(char *);
 
@@ -805,7 +805,7 @@ case 1:
 YY_RULE_SETUP
 #line 12 "matrix.l"
 {
-	int len = strlen(yytext)-2;
+	size_t len = strlen(yytext)-2;
 	char * buffer = (char *)malloc(len+1);
 	strncpy(buffer, &yytext[1], len);
 	buffer[len] = '\0';

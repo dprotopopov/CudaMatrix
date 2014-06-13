@@ -1,5 +1,5 @@
 #include "matrix.h"
-#include "externs.h"
+#include "globals.h"
 
 // ”нарный плюс матрицы с использованием global пам€ти
 template<class T> __global__ void __global__matrix_plus__global__(T *a, T *b, int height, int width, size_t pitch1, size_t pitch2) {
@@ -12,30 +12,34 @@ template<class T> __global__ void __global__matrix_plus__global__(T *a, T *b, in
 
 // ”нарный плюс матрицы с использованием constant пам€ти
 template<class T> __global__ void __global__matrix_plus__constant__(T *b, int height, int width, size_t pitch) {
+	storage<T> buffer_a;
 	for (int i = blockDim.x*blockIdx.x + threadIdx.x; i < height; i += blockDim.x*gridDim.x) {
 		for (int j = blockDim.y*blockIdx.y + threadIdx.y; j < width; j += blockDim.y*gridDim.y) {
-			ELEMENT(T,b,i,j,pitch) = ELEMENT(T,__c__,i,j,width*sizeof(T));
+			buffer_a.i = __c__[IDX(i,j,width)];
+			ELEMENT(T,b,i,j,pitch) = buffer_a.t;
 		}
 	}
 }
 
 // ”нарный плюс матрицы с использованием texture пам€ти
 template<class T> __global__ void __global__matrix_plus__texture__(T *b, int height, int width, size_t pitch) {
+	storage<T> buffer_a;
 	for (int i = blockDim.x*blockIdx.x + threadIdx.x; i < height; i += blockDim.x*gridDim.x) {
 		for (int j = blockDim.y*blockIdx.y + threadIdx.y; j < width; j += blockDim.y*gridDim.y) {
-			uint4 buffer_a = tex1Dfetch(tex_a,IDX(i,j,width));
-			ELEMENT(T,b,i,j,pitch) = *(T*)&buffer_a;
+			buffer_a.i = tex1Dfetch(tex_a,IDX(i,j,width));
+			ELEMENT(T,b,i,j,pitch) = buffer_a.t;
 		}
 	}
 }
 
-template<class T> __host__ void __host__matrix_plus(dim3 blocks, dim3 threads, MATRIX<T> *a, MATRIX<T> *b, MEMORY src, MEMORY dest, MEMORY cache) {
+template<class T> __host__ void __cdecl __host__matrix_plus(dim3 blocks, dim3 threads, MATRIX<T> *a, MATRIX<T> *b, MEMORY src, MEMORY dest, MEMORY cache) {
 
 	T * d_a;
 	T * d_b;
 	size_t pitch1;
 	size_t pitch2;
 	cudaError_t err;
+	storage<T> buffer;
 
 	int height = a->height;
 	int width =  a->width;
@@ -48,9 +52,8 @@ template<class T> __host__ void __host__matrix_plus(dim3 blocks, dim3 threads, M
 		err = cudaMalloc((void**)&gpu_a, (size_t) a->width * a->height * sizeof(uint4));
 		for(int i=0; i<a->height; i++) {
 			for(int j=0; j<a->width; j++) {
-				uint4 buffer;
-				*(T*)&buffer = a->values[IDX(i,j,width)];
-				cpu_a[IDX(i,j,width)] = buffer;
+				buffer.t = a->values[IDX(i,j,width)];
+				cpu_a[IDX(i,j,width)] = buffer.i;
 			}
 		}
 		//  настройка параемтров текстуры  texture
@@ -58,8 +61,8 @@ template<class T> __host__ void __host__matrix_plus(dim3 blocks, dim3 threads, M
 		tex_a.addressMode[1] = cudaAddressModeWrap;
 		tex_a.filterMode     = cudaFilterModePoint;  // ближайшее значение
 		tex_a.normalized     = false;                // не использовать нормализованную адресацию
-		err = cudaBindTexture(0, tex_a, gpu_a, (size_t) a->width * a->height * sizeof(uint4));
 		err = cudaMemcpy((void*)gpu_a, (void*)cpu_a, (size_t) a->width * a->height * sizeof(uint4), cudaMemcpyHostToDevice);
+		err = cudaBindTexture(0, tex_a, gpu_a, (size_t) a->width * a->height * sizeof(uint4));
 		err = cudaFreeHost((void*)cpu_a);
 		break;
 	case GLOBAL:
@@ -67,7 +70,16 @@ template<class T> __host__ void __host__matrix_plus(dim3 blocks, dim3 threads, M
 		err = cudaMemcpy2D((void*)d_a, pitch1, (void*)a->values, (size_t) a->width * sizeof(T), (size_t) width * sizeof(T), (size_t) height, cudaMemcpyHostToDevice);
 		break;
 	case CONSTANT:
-		err = ::cudaMemcpyToSymbol(__c__, (void*)a->values, (size_t) a->height * a->width * sizeof(T), (size_t) 0, cudaMemcpyHostToDevice);
+		err = cudaMallocHost((void**)&cpu_a, (size_t) a->width * a->height * sizeof(uint4));
+		for(int i=0; i<a->height; i++) {
+			for(int j=0; j<a->width; j++) {
+				buffer.t = a->values[IDX(i,j,width)];
+				cpu_a[IDX(i,j,width)] = buffer.i;
+			}
+		}
+		err = cudaGetSymbolAddress((void **)&gpu_a, __c__);
+		err = cudaMemcpy(gpu_a, cpu_a, (size_t) height * width * sizeof(uint4), cudaMemcpyHostToDevice);		
+		err = cudaFreeHost((void*)cpu_a);
 		break;
 	default:
 		break;
@@ -112,3 +124,5 @@ template<class T> __host__ void __host__matrix_plus(dim3 blocks, dim3 threads, M
 	
 	err = err;
 }
+
+template __host__ void __cdecl __host__matrix_plus<double>(dim3 blocks, dim3 threads, MATRIX<double> *a, MATRIX<double> *b, MEMORY src, MEMORY dest, MEMORY cache);

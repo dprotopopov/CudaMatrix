@@ -1,0 +1,26 @@
+echo "CUDA matrix calculator"
+echo "An example of two marices product"
+
+echo "Read first matrix"
+read a "a.csv"
+
+echo "Read second matrix"
+read b "b.csv"
+
+echo "Assign settings"
+use src global
+use dest global
+use cache shared
+set blocks 15 15
+set threads 15 15
+
+echo "Product two matrices"
+let c = a * b
+
+echo "Save result"
+write c "c.csv"
+
+echo "Free allocated resouces"
+free a
+free b
+free c

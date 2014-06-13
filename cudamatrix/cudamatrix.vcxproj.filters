@@ -15,61 +15,47 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <CudaCompile Include="matrix.cu">
-      <Filter>Файлы исходного кода</Filter>
-    </CudaCompile>
-    <CudaCompile Include="matrixadd.cu">
-      <Filter>Файлы исходного кода</Filter>
-    </CudaCompile>
-    <CudaCompile Include="matrixminus.cu">
-      <Filter>Файлы исходного кода</Filter>
-    </CudaCompile>
-    <CudaCompile Include="matrixplus.cu">
-      <Filter>Файлы исходного кода</Filter>
-    </CudaCompile>
-    <CudaCompile Include="matrixsub.cu">
-      <Filter>Файлы исходного кода</Filter>
-    </CudaCompile>
-    <CudaCompile Include="matrix.flex.cpp">
-      <Filter>Файлы исходного кода</Filter>
-    </CudaCompile>
-    <CudaCompile Include="matrix.tab.cpp">
-      <Filter>Файлы исходного кода</Filter>
-    </CudaCompile>
-    <CudaCompile Include="matrixgaussjordan.cu">
-      <Filter>Файлы исходного кода</Filter>
-    </CudaCompile>
-    <CudaCompile Include="matrixmul.cu">
-      <Filter>Файлы исходного кода</Filter>
-    </CudaCompile>
-    <CudaCompile Include="matrixrot.cu">
-      <Filter>Файлы исходного кода</Filter>
-    </CudaCompile>
-    <CudaCompile Include="matrixio.cpp">
-      <Filter>Файлы исходного кода</Filter>
-    </CudaCompile>
+    <None Include="example.script" />
   </ItemGroup>
   <ItemGroup>
-    <Flex Include="matrix.l" />
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="example.script" />
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="matrix.h">
-      <Filter>Заголовочные файлы</Filter>
-    </None>
-    <None Include="ClassDiagram.cd" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="matrix.tab.h">
-      <Filter>Заголовочные файлы</Filter>
-    </ClInclude>
     <ClInclude Include="externs.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
+    <ClInclude Include="matrix.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="matrix.tab.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+    <ClInclude Include="globals.h">
+      <Filter>Заголовочные файлы</Filter>
+    </ClInclude>
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="matrix.cu" />
+    <CudaCompile Include="matrixadd.cu" />
+    <CudaCompile Include="matrixgaussjordan.cu" />
+    <CudaCompile Include="matrixminus.cu" />
+    <CudaCompile Include="matrixmul.cu" />
+    <CudaCompile Include="matrixplus.cu" />
+    <CudaCompile Include="matrixrot.cu" />
+    <CudaCompile Include="matrixsub.cu" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="matrix.flex.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="matrix.tab.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
+    <ClCompile Include="matrixio.cpp">
+      <Filter>Файлы исходного кода</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <Bison Include="matrix.y" />
+  </ItemGroup>
+  <ItemGroup>
+    <Flex Include="matrix.l" />
   </ItemGroup>
 </Project>

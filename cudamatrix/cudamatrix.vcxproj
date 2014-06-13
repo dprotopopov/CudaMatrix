@@ -18,8 +18,40 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <None Include="example.script" />
+    <Flex Include="matrix.l">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <FileType>Document</FileType>
+    </Flex>
+    <Bison Include="matrix.y">
+      <ExcludedFromBuild Condition="'$(Configuration)|$(Platform)'=='Release|x64'">false</ExcludedFromBuild>
+      <FileType>Document</FileType>
+    </Bison>
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="externs.h" />
+    <ClInclude Include="globals.h" />
+    <ClInclude Include="matrix.h" />
+    <ClInclude Include="matrix.tab.h" />
+  </ItemGroup>
+  <ItemGroup>
+    <CudaCompile Include="matrix.cu" />
+    <CudaCompile Include="matrixadd.cu" />
+    <CudaCompile Include="matrixgaussjordan.cu" />
+    <CudaCompile Include="matrixminus.cu" />
+    <CudaCompile Include="matrixmul.cu" />
+    <CudaCompile Include="matrixplus.cu" />
+    <CudaCompile Include="matrixrot.cu" />
+    <CudaCompile Include="matrixsub.cu" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="matrix.flex.cpp" />
+    <ClCompile Include="matrix.tab.cpp" />
+    <ClCompile Include="matrixio.cpp" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
-    <ProjectGuid>{30059A31-9472-4446-87A0-66A58BA4CDAC}</ProjectGuid>
+    <ProjectGuid>{A53A7491-EFC0-4287-B134-26176715B0C3}</ProjectGuid>
     <RootNamespace>cudamatrix</RootNamespace>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -45,15 +77,14 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'" Label="Configuration">
     <ConfigurationType>Application</ConfigurationType>
     <UseDebugLibraries>false</UseDebugLibraries>
-    <PlatformToolset>v110_xp</PlatformToolset>
+    <PlatformToolset>v110</PlatformToolset>
     <WholeProgramOptimization>true</WholeProgramOptimization>
-    <CharacterSet>Unicode</CharacterSet>
-    <CLRSupport>false</CLRSupport>
+    <CharacterSet>MultiByte</CharacterSet>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.props" />
   <ImportGroup Label="ExtensionSettings">
     <Import Project="C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\extras\visual_studio_integration\MSBuildExtensions\CUDA 5.5.props" />
-    <Import Project="..\calculator\win_flex_bison_custom_build.props" />
+    <Import Project="custom_build_rules\win_flex_bison_custom_build.props" />
   </ImportGroup>
   <ImportGroup Label="PropertySheets" Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
@@ -68,17 +99,7 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include;$(IncludePath)</IncludePath>
-    <LibraryPath>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\lib\x64;$(LibraryPath)</LibraryPath>
-    <FlexBeforeTargets>Run</FlexBeforeTargets>
-    <RunCodeAnalysis>true</RunCodeAnalysis>
-    <BisonAfterTargets>Clean</BisonAfterTargets>
-    <FlexAfterTargets>Clean</FlexAfterTargets>
-    <BisonBeforeTargets>Run</BisonBeforeTargets>
-    <LinkIncremental>false</LinkIncremental>
-    <EnableManagedIncrementalBuild>true</EnableManagedIncrementalBuild>
-  </PropertyGroup>
+  <PropertyGroup />
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -116,108 +137,28 @@
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
-      <Optimization>Disabled</Optimization>
-      <SDLCheck>false</SDLCheck>
-      <WholeProgramOptimization>false</WholeProgramOptimization>
-      <ExceptionHandling>SyncCThrow</ExceptionHandling>
-      <BufferSecurityCheck>false</BufferSecurityCheck>
-      <RuntimeLibrary>MultiThreadedDLL</RuntimeLibrary>
-      <DisableLanguageExtensions>true</DisableLanguageExtensions>
-      <EnablePREfast>true</EnablePREfast>
+      <Optimization>MaxSpeed</Optimization>
+      <FunctionLevelLinking>true</FunctionLevelLinking>
+      <IntrinsicFunctions>true</IntrinsicFunctions>
+      <SDLCheck>true</SDLCheck>
+      <AdditionalIncludeDirectories>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\include;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PreprocessorDefinitions>_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
     </ClCompile>
     <Link>
       <GenerateDebugInformation>true</GenerateDebugInformation>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
-      <AdditionalLibraryDirectories>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <ShowProgress>LinkVerbose</ShowProgress>
       <SubSystem>Console</SubSystem>
+      <AdditionalLibraryDirectories>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
       <AdditionalDependencies>cuda.lib;cudart.lib;%(AdditionalDependencies)</AdditionalDependencies>
-      <RegisterOutput>true</RegisterOutput>
-      <GenerateMapFile>true</GenerateMapFile>
-      <MapExports>true</MapExports>
-      <Profile>true</Profile>
-      <ForceFileOutput>Enabled</ForceFileOutput>
-      <IgnoreEmbeddedIDL>true</IgnoreEmbeddedIDL>
-      <GenerateWindowsMetadata>true</GenerateWindowsMetadata>
     </Link>
     <CudaCompile>
       <TargetMachinePlatform>64</TargetMachinePlatform>
-      <NvccCompilation>compile</NvccCompilation>
-      <CudaRuntime>Shared</CudaRuntime>
-      <GPUDebugInfo>true</GPUDebugInfo>
-      <HostDebugInfo>true</HostDebugInfo>
-      <Runtime>MT</Runtime>
-      <FastMath>true</FastMath>
     </CudaCompile>
-    <CudaLink>
-      <AdditionalLibraryDirectories>C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\lib\x64;%(AdditionalLibraryDirectories)</AdditionalLibraryDirectories>
-      <AdditionalDependencies>cuda.lib;cudart.lib</AdditionalDependencies>
-      <GPUDebugInfo>true</GPUDebugInfo>
-      <Optimization>O3</Optimization>
-    </CudaLink>
-    <ProjectReference />
-    <ProjectReference>
-      <LinkLibraryDependencies>true</LinkLibraryDependencies>
-    </ProjectReference>
-    <ProjectReference>
-      <UseLibraryDependencyInputs>true</UseLibraryDependencyInputs>
-    </ProjectReference>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <CudaCompile Include="matrix.cu">
-      <FileType>CppCode</FileType>
-    </CudaCompile>
-    <CudaCompile Include="matrixadd.cu">
-      <FileType>CppCode</FileType>
-    </CudaCompile>
-    <CudaCompile Include="matrixminus.cu">
-      <FileType>CppCode</FileType>
-    </CudaCompile>
-    <CudaCompile Include="matrixplus.cu">
-      <FileType>CppCode</FileType>
-    </CudaCompile>
-    <CudaCompile Include="matrixsub.cu">
-      <FileType>CppCode</FileType>
-    </CudaCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <CudaCompile Include="matrix.flex.cpp" />
-    <CudaCompile Include="matrix.tab.cpp" />
-    <CudaCompile Include="matrixrot.cu">
-      <FileType>CppCode</FileType>
-    </CudaCompile>
-    <CudaCompile Include="matrixgaussjordan.cu">
-      <FileType>CppCode</FileType>
-    </CudaCompile>
-    <CudaCompile Include="matrixio.cpp">
-      <FileType>CppCode</FileType>
-    </CudaCompile>
-    <CudaCompile Include="matrixmul.cu">
-      <FileType>CppCode</FileType>
-    </CudaCompile>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="ClassDiagram.cd" />
-    <None Include="matrix.h">
-      <FileType>CppHeader</FileType>
-    </None>
-  </ItemGroup>
-  <ItemGroup>
-    <Text Include="example.script" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="externs.h" />
-    <ClInclude Include="matrix.tab.h" />
-  </ItemGroup>
-  <ItemGroup>
-    <Flex Include="matrix.l" />
-  </ItemGroup>
-  <ItemGroup>
-    <Bison Include="matrix.y" />
-  </ItemGroup>
+  <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="C:\Program Files\NVIDIA GPU Computing Toolkit\CUDA\v5.5\extras\visual_studio_integration\MSBuildExtensions\CUDA 5.5.targets" />
-    <Import Project="..\calculator\win_flex_bison_custom_build.targets" />
+    <Import Project="custom_build_rules\win_flex_bison_custom_build.targets" />
   </ImportGroup>
 </Project>

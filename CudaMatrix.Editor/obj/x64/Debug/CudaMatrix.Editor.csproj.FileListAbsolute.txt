@@ -1,0 +1,1 @@
+D:\Projects\CudaMatrix\CudaMatrix.Editor\bin\x64\Debug\CudaMatrix.Editor.exe.config

@@ -1,5 +1,6 @@
 %{
 #include "matrix.h"
+#include "externs.h"
 
 void yyerror(char *);
 int yylex(void);
@@ -10,6 +11,7 @@ MEMORY cache_memory = SHARED;
 dim3 blocks = dim3(1,1,1);
 dim3 threads = dim3(1,1,1);
 double tolerance = 0.0;
+
 %}
 %token SHOW_KEYWORD INFO_KEYWORD HELP_KEYWORD
 %token READ_KEYWORD WRITE_KEYWORD ECHO_KEYWORD

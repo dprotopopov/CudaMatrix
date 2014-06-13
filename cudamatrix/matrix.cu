@@ -1,8 +1,4 @@
-﻿#define __NO_EXTERN__
-#include "matrix.h"
-
-// Constant memory (64KB max) can only be hard-coded before compilation.
-__constant__ char __cdecl __c__[CONST_SIZE];
+﻿#include "matrix.h"
 
 texture<uint4, cudaTextureType1D, cudaReadModeElementType> __cdecl tex_a;
 texture<uint4, cudaTextureType1D, cudaReadModeElementType> __cdecl tex_b;

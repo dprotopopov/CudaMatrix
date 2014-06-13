@@ -23,7 +23,7 @@ char *mystrtok(char **m, char *s, char c)
 	return p;
 }
 
-template<class T> void matrix_read(char *fileName, MATRIX<T> ** matrix) {
+template<class T> void __cdecl matrix_read(char *fileName, MATRIX<T> ** matrix) {
 	char buffer[4096];
 	char *tok;
 	char *p;
@@ -74,7 +74,7 @@ template<class T> void matrix_read(char *fileName, MATRIX<T> ** matrix) {
 	fclose(fs);
 }
 
-template<class T> void matrix_write(char *fileName, MATRIX<T> * matrix) {
+template<class T> void __cdecl matrix_write(char *fileName, MATRIX<T> * matrix) {
 	int height = matrix->height;
 	int width = matrix->width;
 	int i, j;
@@ -91,3 +91,5 @@ template<class T> void matrix_write(char *fileName, MATRIX<T> * matrix) {
 	fclose(fs);
 }
 
+template void matrix_read<double>(char *fileName, MATRIX<double> ** matrix);
+template void matrix_write<double>(char *fileName, MATRIX<double> * matrix);

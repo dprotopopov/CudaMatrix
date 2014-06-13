@@ -1,12 +1,12 @@
 ﻿#include "matrix.h"
-#include "externs.h"
+#include "globals.h"
 
 template<class T> __global__ void __global__matrix_gaussjordanstep__global__none__(T *prev, T *next, int row, int col, int height, int width, size_t pitch) {
 	T d = ELEMENT(T,prev,row,col,pitch);
 	for (int i = blockDim.x*blockIdx.x + threadIdx.x; i < height; i += blockDim.x*gridDim.x) {
 		for (int j = blockDim.y*blockIdx.y + threadIdx.y; j < width; j += blockDim.y*gridDim.y) {
 			if (i!=row && j!=col) {
-				ELEMENT(T,next,i,j,pitch) = ELEMENT(T,prev,i,j,pitch) - ELEMENT(T,prev,i,col,pitch)*ELEMENT(T,prev,row,j,pitch)/d;
+				ELEMENT(T,next,i,j,pitch) = ELEMENT(T,prev,i,j,pitch) - ELEMENT(T,prev,i,col,pitch)*ELEMENT(T,prev,row,j,pitch)/ d;
 			}
 			else if (i==row && j!=col) {
 				ELEMENT(T,next,i,j,pitch) = ELEMENT(T,prev,i,j,pitch) / d;
@@ -26,7 +26,7 @@ template<class T> __global__ void __global__matrix_gaussjordanstep2__global__non
 	for (int i = blockDim.x*blockIdx.x + threadIdx.x; i < height; i += blockDim.x*gridDim.x) {
 		for (int j = blockDim.y*blockIdx.y + threadIdx.y; j < width; j += blockDim.y*gridDim.y) {
 			if (i!=row) {
-				ELEMENT(T,next,i,j,pitch) = ELEMENT(T,prev,i,j,pitch) - buffer[i]*ELEMENT(T,prev,row,j,pitch)/d;
+				ELEMENT(T,next,i,j,pitch) = ELEMENT(T,prev,i,j,pitch) - buffer[i]*ELEMENT(T,prev,row,j,pitch)/ d;
 			}
 			else {
 				ELEMENT(T,next,i,j,pitch) = ELEMENT(T,prev,i,j,pitch) / d;
@@ -61,10 +61,10 @@ template<class T> __global__ void __global__matrix_gaussjordanstep__global__shar
 	for (int i = threadIdx.x; i < sharedCountX; i += blockDim.x) {
 		for (int j = threadIdx.y; j < sharedCountY; j += blockDim.y) {
 			if (sharedIndexX+i!=row && sharedIndexY+j!=col) {
-				ELEMENT(T,next,sharedIndexX+i,sharedIndexY+j,pitch) = ELEMENT(T,prev,sharedIndexX+i,sharedIndexY+j,pitch) - __s__[i]*__s__[SHARED_SIZE - j - 1]/d;
+				ELEMENT(T,next,sharedIndexX+i,sharedIndexY+j,pitch) = ELEMENT(T,prev,sharedIndexX+i,sharedIndexY+j,pitch) - __s__[i]*__s__[SHARED_SIZE - j - 1]/ d;
 			}
 			else if (sharedIndexX+i==row && sharedIndexY+j!=col) {
-				ELEMENT(T,next,sharedIndexX+i,sharedIndexY+j,pitch) = __s__[SHARED_SIZE - j - 1] / d;
+				ELEMENT(T,next,sharedIndexX+i,sharedIndexY+j,pitch) = __s__[SHARED_SIZE - j - 1] /d;
 			}
 			else if (sharedIndexX+i!=row && sharedIndexY+j==col) {
 				ELEMENT(T,next,sharedIndexX+i,sharedIndexY+j,pitch) = (T)0;
@@ -101,7 +101,7 @@ template<class T> __global__ void __global__matrix_gaussjordanstep2__global__sha
 	for (int i = threadIdx.x; i < sharedCountX; i += blockDim.x) {
 		for (int j = threadIdx.y; j < sharedCountY; j += blockDim.y) {
 			if (sharedIndexX+i!=row) {
-				ELEMENT(T,next,sharedIndexX+i,sharedIndexY+j,pitch) = ELEMENT(T,prev,sharedIndexX+i,sharedIndexY+j,pitch) - __s__[i]*__s__[SHARED_SIZE - j - 1]/d;
+				ELEMENT(T,next,sharedIndexX+i,sharedIndexY+j,pitch) = ELEMENT(T,prev,sharedIndexX+i,sharedIndexY+j,pitch) - __s__[i]*__s__[SHARED_SIZE - j - 1]/ d;
 			}
 			else {
 				ELEMENT(T,next,sharedIndexX+i,sharedIndexY+j,pitch) = __s__[SHARED_SIZE - j - 1] / d;
@@ -111,10 +111,10 @@ template<class T> __global__ void __global__matrix_gaussjordanstep2__global__sha
 }
 
 template<class T> __global__ void __global__matrix_gaussjordanstep__global__local__(T *prev, T *next, int row, int col, int height, int width, size_t pitch) {
-	int localIndexX = (int)((height*(blockDim.x*blockIdx.x+threadIdx.x+0))/blockDim.x/gridDim.x);
-	int localIndexY = (int)((width*(blockDim.y*blockIdx.y+threadIdx.y+0))/blockDim.y/gridDim.y);
-	int localCountX = (int)((height*(blockDim.x*blockIdx.x+threadIdx.x+0))/blockDim.x/gridDim.x)-(int)((height*(blockDim.x*blockIdx.x+threadIdx.x+1))/blockDim.x/gridDim.x);
-	int localCountY = (int)((width*(blockDim.y*blockIdx.y+threadIdx.y+0))/blockDim.y/gridDim.y)-(int)((width*(blockDim.y*blockIdx.y+threadIdx.y+1))/blockDim.y/gridDim.y);
+	int localIndexX = (int)((height*(blockDim.x*blockIdx.x+threadIdx.x+0))/(blockDim.x*gridDim.x));
+	int localIndexY = (int)((width*(blockDim.y*blockIdx.y+threadIdx.y+0))/(blockDim.y*gridDim.y));
+	int localCountX = (int)((height*(blockDim.x*blockIdx.x+threadIdx.x+0))/(blockDim.x*gridDim.x))-(int)((height*(blockDim.x*blockIdx.x+threadIdx.x+1))/(blockDim.x*gridDim.x));
+	int localCountY = (int)((width*(blockDim.y*blockIdx.y+threadIdx.y+0))/(blockDim.y*gridDim.y))-(int)((width*(blockDim.y*blockIdx.y+threadIdx.y+1))/(blockDim.y*gridDim.y));
 
 	T d = ELEMENT(T,prev,row,col,pitch);
 
@@ -134,7 +134,7 @@ template<class T> __global__ void __global__matrix_gaussjordanstep__global__loca
 	for (int i = 0; i < localCountX; i++ ) {
 		for (int j = 0; j < localCountY; j++ ) {
 			if (localIndexX+i!=row && localIndexY+j!=col) {
-				ELEMENT(T,next,localIndexX+i,localIndexY+j,pitch) = ELEMENT(T,prev,localIndexX+i,localIndexY+j,pitch) - __l__[i]*__l__[LOCAL_SIZE - j - 1]/d;
+				ELEMENT(T,next,localIndexX+i,localIndexY+j,pitch) = ELEMENT(T,prev,localIndexX+i,localIndexY+j,pitch) - __l__[i]*__l__[LOCAL_SIZE - j - 1]/ d;
 			}
 			else if (localIndexX+i==row && localIndexY+j!=col) {
 				ELEMENT(T,next,localIndexX+i,localIndexY+j,pitch) = __l__[LOCAL_SIZE - j - 1] / d;
@@ -150,10 +150,10 @@ template<class T> __global__ void __global__matrix_gaussjordanstep__global__loca
 }
 
 template<class T> __global__ void __global__matrix_gaussjordanstep2__global__local__(T *buffer, T *prev, T *next, int row, int col, int height, int width, size_t pitch) {
-	int localIndexX = (int)((height*(blockDim.x*blockIdx.x+threadIdx.x+0))/blockDim.x/gridDim.x);
-	int localIndexY = (int)((width*(blockDim.y*blockIdx.y+threadIdx.y+0))/blockDim.y/gridDim.y);
-	int localCountX = (int)((height*(blockDim.x*blockIdx.x+threadIdx.x+0))/blockDim.x/gridDim.x)-(int)((height*(blockDim.x*blockIdx.x+threadIdx.x+1))/blockDim.x/gridDim.x);
-	int localCountY = (int)((width*(blockDim.y*blockIdx.y+threadIdx.y+0))/blockDim.y/gridDim.y)-(int)((width*(blockDim.y*blockIdx.y+threadIdx.y+1))/blockDim.y/gridDim.y);
+	int localIndexX = (int)((height*(blockDim.x*blockIdx.x+threadIdx.x+0))/(blockDim.x*gridDim.x));
+	int localIndexY = (int)((width*(blockDim.y*blockIdx.y+threadIdx.y+0))/(blockDim.y*gridDim.y));
+	int localCountX = (int)((height*(blockDim.x*blockIdx.x+threadIdx.x+0))/(blockDim.x*gridDim.x))-(int)((height*(blockDim.x*blockIdx.x+threadIdx.x+1))/(blockDim.x*gridDim.x));
+	int localCountY = (int)((width*(blockDim.y*blockIdx.y+threadIdx.y+0))/(blockDim.y*gridDim.y))-(int)((width*(blockDim.y*blockIdx.y+threadIdx.y+1))/(blockDim.y*gridDim.y));
 
 	T d = buffer[row];
 
@@ -173,7 +173,7 @@ template<class T> __global__ void __global__matrix_gaussjordanstep2__global__loc
 	for (int i = 0; i < localCountX; i++ ) {
 		for (int j = 0; j < localCountY; j++ ) {
 			if (localIndexX+i!=row) {
-				ELEMENT(T,next,localIndexX+i,localIndexY+j,pitch) = ELEMENT(T,prev,localIndexX+i,localIndexY+j,pitch) - __l__[i]*__l__[LOCAL_SIZE - j - 1]/d;
+				ELEMENT(T,next,localIndexX+i,localIndexY+j,pitch) = ELEMENT(T,prev,localIndexX+i,localIndexY+j,pitch) - __l__[i]*__l__[LOCAL_SIZE - j - 1]/ d;
 			}
 			else {
 				ELEMENT(T,next,localIndexX+i,localIndexY+j,pitch) = __l__[LOCAL_SIZE - j - 1] / d;
@@ -183,77 +183,88 @@ template<class T> __global__ void __global__matrix_gaussjordanstep2__global__loc
 }
 
 template<class T> __global__ void __global__matrix_gaussjordanstep__texture__none__(uint4 *next, int row, int col, int height, int width) {
-	uint4 buffer_d = tex1Dfetch(tex_w,IDX(row,col,width));
-	T d = *(T*)&buffer_d;
+	storage<T> buffer_a;
+	storage<T> buffer_b;
+	storage<T> buffer_c;
+	storage<T> buffer_d;
+	storage<T> buffer_e;
+	buffer_d.i = tex1Dfetch(tex_w,IDX(row,col,width));
 	for (int i = blockDim.x*blockIdx.x + threadIdx.x; i < height; i += blockDim.x*gridDim.x) {
 		for (int j = blockDim.y*blockIdx.y + threadIdx.y; j < width; j += blockDim.y*gridDim.y) {
 			if (i!=row && j!=col) {
-				uint4 buffer_a = tex1Dfetch(tex_w,IDX(i,j,width));
-				uint4 buffer_b = tex1Dfetch(tex_w,IDX(i,col,width));
-				uint4 buffer_c = tex1Dfetch(tex_w,IDX(row,j,width));
-				T a = *(T*)&buffer_a;
-				T b = *(T*)&buffer_b;
-				T c = *(T*)&buffer_c;
-				*(T*)&next[IDX(i,j,width)] = a - b*c/d;
+				buffer_a.i = tex1Dfetch(tex_w,IDX(i,j,width));
+				buffer_b.i = tex1Dfetch(tex_w,IDX(i,col,width));
+				buffer_c.i = tex1Dfetch(tex_w,IDX(row,j,width));
+				buffer_e.t =  buffer_a.t - buffer_b.t*buffer_c.t/ buffer_d.t;
+				next[IDX(i,j,width)] = buffer_e.i;
 			}
 			else if (i==row && j!=col) {
-				uint4 buffer_a = tex1Dfetch(tex_w,IDX(i,j,width));
-				T a = *(T*)&buffer_a;
-				*(T*)&next[IDX(i,j,width)] = a/d;
+				buffer_a.i = tex1Dfetch(tex_w,IDX(i,j,width));
+				buffer_e.t = buffer_a.t / buffer_d.t;
+				next[IDX(i,j,width)] = buffer_e.i;
 			}
 			else if (i!=row && j==col) {
-				*(T*)&next[IDX(i,j,width)] = (T)0;
+				buffer_e.t = (T)0;
+				next[IDX(i,j,width)] = buffer_e.i;
 			}
 			else {
-				*(T*)&next[IDX(i,j,width)] = (T)1;
+				buffer_e.t = (T)1;
+				next[IDX(i,j,width)] = buffer_e.i;
 			}
 		}
 	}
 }
 template<class T> __global__ void __global__matrix_gaussjordanstep2__texture__none__(uint4 *next, int row, int col, int height, int width) {
-	uint4 buffer_d = tex1Dfetch(tex_buffer,row);
-	T d = *(T*)&buffer_d;
+	storage<T> buffer_a;
+	storage<T> buffer_b;
+	storage<T> buffer_c;
+	storage<T> buffer_d;
+	storage<T> buffer_e;
+	buffer_d.i = tex1Dfetch(tex_buffer,row);
 	for (int i = blockDim.x*blockIdx.x + threadIdx.x; i < height; i += blockDim.x*gridDim.x) {
 		for (int j = blockDim.y*blockIdx.y + threadIdx.y; j < width; j += blockDim.y*gridDim.y) {
 			if (i!=row) {
-				uint4 buffer_a = tex1Dfetch(tex_w,IDX(i,j,width));
-				uint4 buffer_b = tex1Dfetch(tex_buffer,i);
-				uint4 buffer_c = tex1Dfetch(tex_w,IDX(row,j,width));
-				T a = *(T*)&buffer_a;
-				T b = *(T*)&buffer_b;
-				T c = *(T*)&buffer_c;
-				*(T*)&next[IDX(i,j,width)] = a - b*c/d;
+				buffer_a.i = tex1Dfetch(tex_w,IDX(i,j,width));
+				buffer_b.i = tex1Dfetch(tex_buffer,i);
+				buffer_c.i = tex1Dfetch(tex_w,IDX(row,j,width));
+				buffer_e.t =  buffer_a.t - buffer_b.t*buffer_c.t/ buffer_d.t;
+				next[IDX(i,j,width)] = buffer_e.i;
 			}
 			else {
-				uint4 buffer_a = tex1Dfetch(tex_w,IDX(i,j,width));
-				T a = *(T*)&buffer_a;
-				*(T*)&next[IDX(i,j,width)] = a/d;
+				buffer_a.i = tex1Dfetch(tex_w,IDX(i,j,width));
+				buffer_e.t = buffer_a.t / buffer_d.t;
+				next[IDX(i,j,width)] = buffer_e.i;
 			}
 		}
 	}
 }
 
 template<class T> __global__ void __global__matrix_gaussjordanstep__texture__shared__(uint4 *next, int row, int col, int height, int width) {
+	storage<T> buffer_a;
+	storage<T> buffer_b;
+	storage<T> buffer_c;
+	storage<T> buffer_d;
+	storage<T> buffer_e;
+
 	int sharedIndexX = (int)((height*(blockIdx.x+0))/gridDim.x);
 	int sharedIndexY = (int)((width*(blockIdx.y+0))/gridDim.y);
 	int sharedCountX = (int)((height*(blockIdx.x+1))/gridDim.x)-(int)((height*(blockIdx.x+0))/gridDim.x);
 	int sharedCountY = (int)((width*(blockIdx.y+1))/gridDim.y)-(int)((width*(blockIdx.y+0))/gridDim.y);
 
-	uint4 buffer_d = tex1Dfetch(tex_w,IDX(row,col,width));
-	T d = *(T*)&buffer_d;
+	buffer_d.i = tex1Dfetch(tex_w,IDX(row,col,width));
 
 	__shared__ T __s__[SHARED_SIZE];
 
 	for (int i = threadIdx.x; i < sharedCountX; i += blockDim.x) {
 		for (int j = threadIdx.y; j < 1; j+= blockDim.y) {
-			uint4 buffer_b = tex1Dfetch(tex_w,IDX(sharedIndexX+i,col,width));
-			__s__[i] = *(T*)&buffer_b;
+			buffer_b.i = tex1Dfetch(tex_w,IDX(sharedIndexX+i,col,width));
+			__s__[i] = buffer_b.t;
 		}
 	}
 	for (int i = threadIdx.x; i < 1; i += blockDim.x) {
 		for (int j = threadIdx.y; j < sharedCountY; j+= blockDim.y) {
-			uint4 buffer_c = tex1Dfetch(tex_w,IDX(row,sharedIndexY+j,width));
-			__s__[SHARED_SIZE - j - 1] = *(T*)&buffer_c;
+			buffer_c.i = tex1Dfetch(tex_w,IDX(row,sharedIndexY+j,width));
+			__s__[SHARED_SIZE - j - 1] = buffer_c.t;
 		}
 	}
 
@@ -262,43 +273,52 @@ template<class T> __global__ void __global__matrix_gaussjordanstep__texture__sha
 	for (int i = threadIdx.x; i < sharedCountX; i += blockDim.x) {
 		for (int j = threadIdx.y; j < sharedCountY; j += blockDim.y) {
 			if (sharedIndexX+i!=row && sharedIndexY+j!=col) {
-				uint4 buffer_a = tex1Dfetch(tex_w,IDX(sharedIndexX+i,sharedIndexY+j,width));
-				*(T*)&next[IDX(sharedIndexX+i,sharedIndexY+j,width)] = *(T*)&buffer_a - __s__[i]*__s__[SHARED_SIZE - j - 1]/d;
+				buffer_a.i = tex1Dfetch(tex_w,IDX(sharedIndexX+i,sharedIndexY+j,width));
+				buffer_e.t = buffer_a.t - __s__[i]*__s__[SHARED_SIZE - j - 1]/ buffer_d.t;
+				next[IDX(sharedIndexX+i,sharedIndexY+j,width)] = buffer_e.i;
 			}
 			else if (sharedIndexX+i==row && sharedIndexY+j!=col) {
-				*(T*)&next[IDX(sharedIndexX+i,sharedIndexY+j,width)] = __s__[SHARED_SIZE - j - 1] / d;
+				buffer_e.t = __s__[SHARED_SIZE - j - 1] / buffer_d.t;
+				next[IDX(sharedIndexX+i,sharedIndexY+j,width)] = buffer_e.i;
 			}
 			else if (sharedIndexX+i!=row && sharedIndexY+j==col) {
-				*(T*)&next[IDX(sharedIndexX+i,sharedIndexY+j,width)] = (T)0;
+				buffer_e.t = (T)0;
+				next[IDX(sharedIndexX+i,sharedIndexY+j,width)] = buffer_e.i;
 			}
 			else {
-				*(T*)&next[IDX(sharedIndexX+i,sharedIndexY+j,width)] = (T)1;
+				buffer_e.t = (T)1;
+				next[IDX(sharedIndexX+i,sharedIndexY+j,width)] = buffer_e.i;
 			}
 		}
 	}
 }
 
 template<class T> __global__ void __global__matrix_gaussjordanstep2__texture__shared__(uint4 *next, int row, int col, int height, int width) {
+	storage<T> buffer_a;
+	storage<T> buffer_b;
+	storage<T> buffer_c;
+	storage<T> buffer_d;
+	storage<T> buffer_e;
+
 	int sharedIndexX = (int)((height*(blockIdx.x+0))/gridDim.x);
 	int sharedIndexY = (int)((width*(blockIdx.y+0))/gridDim.y);
 	int sharedCountX = (int)((height*(blockIdx.x+1))/gridDim.x)-(int)((height*(blockIdx.x+0))/gridDim.x);
 	int sharedCountY = (int)((width*(blockIdx.y+1))/gridDim.y)-(int)((width*(blockIdx.y+0))/gridDim.y);
 
-	uint4 buffer_d = tex1Dfetch(tex_buffer,row);
-	T d = *(T*)&buffer_d;
+	buffer_d.i = tex1Dfetch(tex_buffer,row);
 
 	__shared__ T __s__[SHARED_SIZE];
 
 	for (int i = threadIdx.x; i < sharedCountX; i += blockDim.x) {
 		for (int j = threadIdx.y; j < 1; j+= blockDim.y) {
-			uint4 buffer_b = tex1Dfetch(tex_buffer,sharedIndexX+i);
-			__s__[i] = *(T*)&buffer_b;
+			buffer_b.i = tex1Dfetch(tex_buffer,sharedIndexX+i);
+			__s__[i] = buffer_b.t;
 		}
 	}
 	for (int i = threadIdx.x; i < 1; i += blockDim.x) {
 		for (int j = threadIdx.y; j < sharedCountY; j+= blockDim.y) {
-			uint4 buffer_c = tex1Dfetch(tex_w,IDX(row,sharedIndexY+j,width));
-			__s__[SHARED_SIZE - j - 1] = *(T*)&buffer_c;
+			buffer_c.i = tex1Dfetch(tex_w,IDX(row,sharedIndexY+j,width));
+			__s__[SHARED_SIZE - j - 1] = buffer_c.t;
 		}
 	}
 
@@ -307,91 +327,109 @@ template<class T> __global__ void __global__matrix_gaussjordanstep2__texture__sh
 	for (int i = threadIdx.x; i < sharedCountX; i += blockDim.x) {
 		for (int j = threadIdx.y; j < sharedCountY; j += blockDim.y) {
 			if (sharedIndexX+i!=row) {
-				uint4 buffer_a = tex1Dfetch(tex_w,IDX(sharedIndexX+i,sharedIndexY+j,width));
-				*(T*)&next[IDX(sharedIndexX+i,sharedIndexY+j,width)] = *(T*)&buffer_a - __s__[i]*__s__[SHARED_SIZE - j - 1]/d;
+				buffer_a.i = tex1Dfetch(tex_w,IDX(sharedIndexX+i,sharedIndexY+j,width));
+				buffer_e.t = buffer_a.t - __s__[i]*__s__[SHARED_SIZE - j - 1]/ buffer_d.t;
+				next[IDX(sharedIndexX+i,sharedIndexY+j,width)] = buffer_e.i;
 			}
 			else {
-				*(T*)&next[IDX(sharedIndexX+i,sharedIndexY+j,width)] = __s__[SHARED_SIZE - j - 1] / d;
+				buffer_e.t = __s__[SHARED_SIZE - j - 1] / buffer_d.t;
+				next[IDX(sharedIndexX+i,sharedIndexY+j,width)] = buffer_e.i;
 			}
 		}
 	}
 }
 
 template<class T> __global__ void __global__matrix_gaussjordanstep__texture__local__(uint4 *next, int row, int col, int height, int width) {
-	int localIndexX = (int)((height*(blockDim.x*blockIdx.x+threadIdx.x+0))/blockDim.x/gridDim.x);
-	int localIndexY = (int)((width*(blockDim.y*blockIdx.y+threadIdx.y+0))/blockDim.y/gridDim.y);
-	int localCountX = (int)((height*(blockDim.x*blockIdx.x+threadIdx.x+0))/blockDim.x/gridDim.x)-(int)((height*(blockDim.x*blockIdx.x+threadIdx.x+1))/blockDim.x/gridDim.x);
-	int localCountY = (int)((width*(blockDim.y*blockIdx.y+threadIdx.y+0))/blockDim.y/gridDim.y)-(int)((width*(blockDim.y*blockIdx.y+threadIdx.y+1))/blockDim.y/gridDim.y);
+	storage<T> buffer_a;
+	storage<T> buffer_b;
+	storage<T> buffer_c;
+	storage<T> buffer_d;
+	storage<T> buffer_e;
 
-	uint4 buffer_d = tex1Dfetch(tex_w,IDX(row,col,width));
-	T d = *(T*)&buffer_d;
+	int localIndexX = (int)((height*(blockDim.x*blockIdx.x+threadIdx.x+0))/(blockDim.x*gridDim.x));
+	int localIndexY = (int)((width*(blockDim.y*blockIdx.y+threadIdx.y+0))/(blockDim.y*gridDim.y));
+	int localCountX = (int)((height*(blockDim.x*blockIdx.x+threadIdx.x+0))/(blockDim.x*gridDim.x))-(int)((height*(blockDim.x*blockIdx.x+threadIdx.x+1))/(blockDim.x*gridDim.x));
+	int localCountY = (int)((width*(blockDim.y*blockIdx.y+threadIdx.y+0))/(blockDim.y*gridDim.y))-(int)((width*(blockDim.y*blockIdx.y+threadIdx.y+1))/(blockDim.y*gridDim.y));
+
+	buffer_d.i = tex1Dfetch(tex_w,IDX(row,col,width));
 
 	T __l__[LOCAL_SIZE];
 
 	for (int i = 0; i < localCountX; i++) {
 		for (int j = 0; j < 1; j++) {
-			uint4 buffer_b = tex1Dfetch(tex_w,IDX(localIndexX+i,col,width));
-			__l__[i] = *(T*)&buffer_b;
+			buffer_b.i = tex1Dfetch(tex_w,IDX(localIndexX+i,col,width));
+			__l__[i] = buffer_b.t;
 		}
 	}
 	for (int i = 0; i < 1; i++) {
 		for (int j = 0; j < localCountY; j++) {
-			uint4 buffer_c = tex1Dfetch(tex_w,IDX(row,localIndexY+j,width));
-			__l__[LOCAL_SIZE - j - 1] = *(T*)&buffer_c;
+			buffer_c.i = tex1Dfetch(tex_w,IDX(row,localIndexY+j,width));
+			__l__[LOCAL_SIZE - j - 1] = buffer_c.t;
 		}
 	}
 
 	for (int i = 0; i < localCountX; i++ ) {
 		for (int j = 0; j < localCountY; j++ ) {
 			if (localIndexX+i!=row && localIndexY+j!=col) {
-				uint4 buffer_a = tex1Dfetch(tex_w,IDX(localIndexX+i,localIndexY+j,width));
-				*(T*)&next[IDX(localIndexX+i,localIndexY+j,width)] = *(T*)&buffer_a - __l__[i]*__l__[LOCAL_SIZE - j - 1]/d;
+				buffer_a.i = tex1Dfetch(tex_w,IDX(localIndexX+i,localIndexY+j,width));
+				buffer_e.t = buffer_a.t - __l__[i]*__l__[LOCAL_SIZE - j - 1]/ buffer_d.t;
+				next[IDX(localIndexX+i,localIndexY+j,width)] = buffer_e.i;
 			}
 			else if (localIndexX+i==row && localIndexY+j!=col) {
-				*(T*)&next[IDX(localIndexX+i,localIndexY+j,width)] = __l__[LOCAL_SIZE - j - 1] / d;
+				buffer_e.t = __l__[LOCAL_SIZE - j - 1] / buffer_d.t;
+				next[IDX(localIndexX+i,localIndexY+j,width)] = buffer_e.i;
 			}
 			else if (localIndexX+i!=row && localIndexY+j==col) {
-				*(T*)&next[IDX(localIndexX+i,localIndexY+j,width)] = (T)0;
+				buffer_e.t = (T)0;
+				next[IDX(localIndexX+i,localIndexY+j,width)] = buffer_e.i;
 			}
 			else {
-				*(T*)&next[IDX(localIndexX+i,localIndexY+j,width)] = (T)1;
+				buffer_e.t = (T)1;
+				next[IDX(localIndexX+i,localIndexY+j,width)] = buffer_e.i;
 			}
 		}
 	}
 }
 
 template<class T> __global__ void __global__matrix_gaussjordanstep2__texture__local__(uint4 *next, int row, int col, int height, int width) {
-	int localIndexX = (int)((height*(blockDim.x*blockIdx.x+threadIdx.x+0))/blockDim.x/gridDim.x);
-	int localIndexY = (int)((width*(blockDim.y*blockIdx.y+threadIdx.y+0))/blockDim.y/gridDim.y);
-	int localCountX = (int)((height*(blockDim.x*blockIdx.x+threadIdx.x+0))/blockDim.x/gridDim.x)-(int)((height*(blockDim.x*blockIdx.x+threadIdx.x+1))/blockDim.x/gridDim.x);
-	int localCountY = (int)((width*(blockDim.y*blockIdx.y+threadIdx.y+0))/blockDim.y/gridDim.y)-(int)((width*(blockDim.y*blockIdx.y+threadIdx.y+1))/blockDim.y/gridDim.y);
+	storage<T> buffer_a;
+	storage<T> buffer_b;
+	storage<T> buffer_c;
+	storage<T> buffer_d;
+	storage<T> buffer_e;
 
-	uint4 buffer_d = tex1Dfetch(tex_buffer,row);
-	T d = *(T*)&buffer_d;
+	int localIndexX = (int)((height*(blockDim.x*blockIdx.x+threadIdx.x+0))/(blockDim.x*gridDim.x));
+	int localIndexY = (int)((width*(blockDim.y*blockIdx.y+threadIdx.y+0))/(blockDim.y*gridDim.y));
+	int localCountX = (int)((height*(blockDim.x*blockIdx.x+threadIdx.x+0))/(blockDim.x*gridDim.x))-(int)((height*(blockDim.x*blockIdx.x+threadIdx.x+1))/(blockDim.x*gridDim.x));
+	int localCountY = (int)((width*(blockDim.y*blockIdx.y+threadIdx.y+0))/(blockDim.y*gridDim.y))-(int)((width*(blockDim.y*blockIdx.y+threadIdx.y+1))/(blockDim.y*gridDim.y));
+
+	buffer_d.i = tex1Dfetch(tex_buffer,row);
 
 	T __l__[LOCAL_SIZE];
 
 	for (int i = 0; i < localCountX; i++) {
 		for (int j = 0; j < 1; j++) {
-			uint4 buffer_b = tex1Dfetch(tex_buffer,localIndexX+i);
-			__l__[i] = *(T*)&buffer_b;
+			buffer_b.i = tex1Dfetch(tex_buffer,localIndexX+i);
+			__l__[i] = buffer_b.t;
 		}
 	}
 	for (int i = 0; i < 1; i++) {
 		for (int j = 0; j < localCountY; j++) {
-			uint4 buffer_c = tex1Dfetch(tex_w,IDX(row,localIndexY+j,width));
-			__l__[LOCAL_SIZE - j - 1] = *(T*)&buffer_c;
+			buffer_c.i = tex1Dfetch(tex_w,IDX(row,localIndexY+j,width));
+			__l__[LOCAL_SIZE - j - 1] = buffer_c.t;
 		}
 	}
 
 	for (int i = 0; i < localCountX; i++ ) {
 		for (int j = 0; j < localCountY; j++ ) {
 			if (localIndexX+i!=row) {
-				uint4 buffer_a = tex1Dfetch(tex_w,IDX(localIndexX+i,localIndexY+j,width));
-				*(T*)&next[IDX(localIndexX+i,localIndexY+j,width)] = *(T*)&buffer_a - __l__[i]*__l__[LOCAL_SIZE - j - 1]/d;
+				buffer_a.i = tex1Dfetch(tex_w,IDX(localIndexX+i,localIndexY+j,width));
+				buffer_e.t = buffer_a.t - __l__[i]*__l__[LOCAL_SIZE - j - 1]/ buffer_d.t;
+				next[IDX(localIndexX+i,localIndexY+j,width)] = buffer_e.i;
 			}
 			else {
-				*(T*)&next[IDX(localIndexX+i,localIndexY+j,width)] = __l__[LOCAL_SIZE - j - 1] / d;
+				buffer_e.t = __l__[LOCAL_SIZE - j - 1] / buffer_d.t;
+				next[IDX(localIndexX+i,localIndexY+j,width)] = buffer_e.i;
 			}
 		}
 	}
@@ -411,12 +449,12 @@ template<class T> __global__ void __global__matrix_find_first_notzero__global__(
 }
 
 template<class T> __global__ void __global__matrix_find_first_notzero__texture__(int *b, int height, int width, T tolerance) {
+	storage<T> buffer;
 	for (int i = blockDim.x*blockIdx.x + threadIdx.x; i < height; i += blockDim.x*gridDim.x) {
 		b[i] = -1;
 		for(int index = 0;index<width;index++) {
-			uint4 buffer = tex1Dfetch(tex_w,IDX(i,index,width));
-			T x = *(T*)&buffer;
-			if (abs(x)>-tolerance) {
+			buffer.i = tex1Dfetch(tex_w,IDX(i,index,width));
+			if (abs(buffer.t)>-tolerance) {
 				b[i] = index;
 				break;
 			}
@@ -424,10 +462,11 @@ template<class T> __global__ void __global__matrix_find_first_notzero__texture__
 	}
 }
 
-template<class T> __host__ void __host__matrix_gaussjordanstep(dim3 blocks, dim3 threads, MATRIX<T> *a, MATRIX<T> *b, int row, int col, MEMORY src, MEMORY dest, MEMORY cache) {
+template<class T> __host__ void __cdecl __host__matrix_gaussjordanstep(dim3 blocks, dim3 threads, MATRIX<T> *a, MATRIX<T> *b, int row, int col, MEMORY src, MEMORY dest, MEMORY cache) {
 	T *d_w[2];
 	size_t pitch;
 	cudaError_t err;
+	storage<T> buffer;
 
 	int height = a->height;
 	int width =  a->width;
@@ -437,11 +476,10 @@ template<class T> __host__ void __host__matrix_gaussjordanstep(dim3 blocks, dim3
 	switch(src) {
 	case TEXTURE:
 		err = cudaMallocHost((void**)&cpu_wv, (size_t) width * height * sizeof(uint4));
-		for(int i=0; i<height; i++) {
-			for(int j=0; j<width; j++) {
-				uint4 buffer;
-				*(T*)&buffer = a->values[IDX(i,j,width)];
-				cpu_wv[IDX(i,j,width)] = buffer;
+		for(int i=0; i<a->height; i++) {
+			for(int j=0; j<a->width; j++) {
+				buffer.t = a->values[IDX(i,j,width)];
+				cpu_wv[IDX(i,j,width)] = buffer.i;
 			}
 		}
 		for(int i=0; i<2; i++) {
@@ -511,12 +549,13 @@ template<class T> __host__ void __host__matrix_gaussjordanstep(dim3 blocks, dim3
 	err = err;
 }
 
-template<class T> __host__ void __host__matrix_gaussjordan(dim3 blocks, dim3 threads, MATRIX<T> *a, MATRIX<T> *b, T tolerance, MEMORY src, MEMORY dest, MEMORY cache) {
+template<class T> __host__ void __cdecl __host__matrix_gaussjordan(dim3 blocks, dim3 threads, MATRIX<T> *a, MATRIX<T> *b, T tolerance, MEMORY src, MEMORY dest, MEMORY cache) {
 	T *d_w[2];
 	int *h_index;
 	int *d_index;
 	size_t pitch;
 	cudaError_t err;
+	storage<T> buffer;
 
 	int height = a->height;
 	int width =  a->width;
@@ -531,9 +570,8 @@ template<class T> __host__ void __host__matrix_gaussjordan(dim3 blocks, dim3 thr
 		err = cudaMallocHost((void**)&cpu_wv, (size_t) width * height * sizeof(uint4));
 		for(int i=0; i<a->height; i++) {
 			for(int j=0; j<a->width; j++) {
-				uint4 buffer;
-				*(T*)&buffer = a->values[IDX(i,j,width)];
-				cpu_wv[IDX(i,j,width)] = buffer;
+				buffer.t = a->values[IDX(i,j,width)];
+				cpu_wv[IDX(i,j,width)] = buffer.i;
 			}
 		}
 		for(int i=0; i<2; i++) {
@@ -554,21 +592,21 @@ template<class T> __host__ void __host__matrix_gaussjordan(dim3 blocks, dim3 thr
 		break;
 	}
 	
-	for(int i=0;;i++) {
+	for(int k=0;;k++) {
 		if(src == GLOBAL) {
-			__global__matrix_find_first_notzero__global__<T><<<1,height>>>(d_w[i&1],d_index,height,width,tolerance,pitch);
+			__global__matrix_find_first_notzero__global__<T><<<1,height>>>(d_w[k&1],d_index,height,width,tolerance,pitch);
 		}
 		else if(src == TEXTURE) {
-			err = cudaBindTexture(0, tex_w, gpu_w[i&1], (size_t) width * height * sizeof(uint4));
+			err = cudaBindTexture(0, tex_w, gpu_w[k&1], (size_t) width * height * sizeof(uint4));
 			__global__matrix_find_first_notzero__texture__<T><<<1,height>>>(d_index,height,width,tolerance);
 		}
 		cudaMemcpy((void*)h_index,(void*)d_index,(size_t) height*sizeof(int),cudaMemcpyDeviceToHost);
-		while(h_index[i]<0 && i<min(height,width)) i++;
-		if(i == min(height,width)) {
+		while(h_index[k]<0 && k<min(height,width)) k++;
+		if(k == min(height,width)) {
 			switch(src) {
 			case TEXTURE:
 				err = cudaUnbindTexture(tex_w);
-				err = cudaMemcpy((void*)cpu_wv, (void*)gpu_w[i&1], (size_t) width * height * sizeof(uint4), cudaMemcpyDeviceToHost);
+				err = cudaMemcpy((void*)cpu_wv, (void*)gpu_w[k&1], (size_t) width * height * sizeof(uint4), cudaMemcpyDeviceToHost);
 				for(int i=0; i<height; i++) {
 					for(int j=0; j<width; j++) {
 						b->values[IDX(i,j,width)] = *(T*)&cpu_wv[IDX(i,j,width)];
@@ -577,30 +615,30 @@ template<class T> __host__ void __host__matrix_gaussjordan(dim3 blocks, dim3 thr
 				break;
 			case GLOBAL:
 			default:
-				err = cudaMemcpy2D((void*)b->values, (size_t) b->width * sizeof(T), (void*)d_w[i&1], pitch, (size_t) width * sizeof(T), (size_t) height, cudaMemcpyDeviceToHost);
+				err = cudaMemcpy2D((void*)b->values, (size_t) b->width * sizeof(T), (void*)d_w[k&1], pitch, (size_t) width * sizeof(T), (size_t) height, cudaMemcpyDeviceToHost);
 				break;
 			}
 			break;
 		}
 		if(src == GLOBAL && cache == NONE) {
-			__global__matrix_gaussjordanstep__global__none__<T><<<blocks,threads>>>(d_w[i&1],d_w[1-(i&1)], i, h_index[i], height, width, pitch);
+			__global__matrix_gaussjordanstep__global__none__<T><<<blocks,threads>>>(d_w[k&1],d_w[1-(k&1)], k, h_index[k], height, width, pitch);
 		}
 		else if(src == GLOBAL && cache == SHARED) {
-			__global__matrix_gaussjordanstep__global__shared__<T><<<blocks,threads>>>(d_w[i&1],d_w[1-(i&1)], i, h_index[i], height, width, pitch);
+			__global__matrix_gaussjordanstep__global__shared__<T><<<blocks,threads>>>(d_w[k&1],d_w[1-(k&1)], k, h_index[k], height, width, pitch);
 		}
 		else if(src == GLOBAL && cache == LOCAL) {
-			__global__matrix_gaussjordanstep__global__local__<T><<<blocks,threads>>>(d_w[i&1],d_w[1-(i&1)], i, h_index[i], height, width, pitch);
+			__global__matrix_gaussjordanstep__global__local__<T><<<blocks,threads>>>(d_w[k&1],d_w[1-(k&1)], k, h_index[k], height, width, pitch);
 		}
 		else if(src == TEXTURE && cache == NONE) {
-			__global__matrix_gaussjordanstep__texture__none__<T><<<blocks,threads>>>(gpu_w[1-(i&1)], i, h_index[i], height, width);
+			__global__matrix_gaussjordanstep__texture__none__<T><<<blocks,threads>>>(gpu_w[1-(k&1)], k, h_index[k], height, width);
 			err = cudaUnbindTexture(tex_w);
 		}
 		else if(src == TEXTURE && cache == SHARED) {
-			__global__matrix_gaussjordanstep__texture__shared__<T><<<blocks,threads>>>(gpu_w[1-(i&1)], i, h_index[i], height, width);
+			__global__matrix_gaussjordanstep__texture__shared__<T><<<blocks,threads>>>(gpu_w[1-(k&1)], k, h_index[k], height, width);
 			err = cudaUnbindTexture(tex_w);
 		}
 		else if(src == TEXTURE && cache == LOCAL) {
-			__global__matrix_gaussjordanstep__texture__local__<T><<<blocks,threads>>>(gpu_w[1-(i&1)], i, h_index[i], height, width);
+			__global__matrix_gaussjordanstep__texture__local__<T><<<blocks,threads>>>(gpu_w[1-(k&1)], k, h_index[k], height, width);
 			err = cudaUnbindTexture(tex_w);
 		}
 	}
@@ -626,7 +664,7 @@ template<class T> __host__ void __host__matrix_gaussjordan(dim3 blocks, dim3 thr
 }
 
 // Вычисление обратной матрицы
-template<class T> __host__ void __host__matrix_inv(dim3 blocks, dim3 threads, MATRIX<T> *a, MATRIX<T> *b, T tolerance,  MEMORY src, MEMORY dest, MEMORY cache) {
+template<class T> __host__ void __cdecl __host__matrix_inv(dim3 blocks, dim3 threads, MATRIX<T> *a, MATRIX<T> *b, T tolerance,  MEMORY src, MEMORY dest, MEMORY cache) {
 	T *d_w[2];
 	T *d_v[2];
 	int *h_index;
@@ -634,6 +672,7 @@ template<class T> __host__ void __host__matrix_inv(dim3 blocks, dim3 threads, MA
 	size_t pitch;
 	T * d_buffer;
 	cudaError_t err;
+	storage<T> buffer;
 
 	int height = a->height;
 	int width =  a->width;
@@ -653,11 +692,10 @@ template<class T> __host__ void __host__matrix_inv(dim3 blocks, dim3 threads, MA
 	switch(src) {
 	case TEXTURE:
 		err = cudaMallocHost((void**)&cpu_wv, (size_t) width * width * sizeof(uint4));
-		for(int i=0; i<height; i++) {
-			for(int j=0; j<width; j++) {
-				uint4 buffer;
-				*(T*)&buffer = a->values[IDX(i,j,width)];
-				cpu_wv[IDX(i,j,width)] = buffer;
+		for(int i=0; i<a->height; i++) {
+			for(int j=0; j<a->width; j++) {
+				buffer.t = a->values[IDX(i,j,width)];
+				cpu_wv[IDX(i,j,width)] = buffer.i;
 			}
 		}
 		for(int i=0; i<2; i++) {
@@ -675,11 +713,10 @@ template<class T> __host__ void __host__matrix_inv(dim3 blocks, dim3 threads, MA
 		tex_v.addressMode[1] = cudaAddressModeWrap;
 		tex_v.filterMode     = cudaFilterModePoint;  // ближайшее значение
 		tex_v.normalized     = false;                // не использовать нормализованную адресацию
-		for(int i=0; i<height; i++) {
-			for(int j=0; j<width; j++) {
-				uint4 buffer;
-				*(T*)&buffer = (i==j)?(T)1:(T)0;
-				cpu_wv[IDX(i,j,width)] = buffer;
+		for(int i=0; i<a->height; i++) {
+			for(int j=0; j<a->width; j++) {
+				buffer.t = (i==j)?(T)1:(T)0;
+				cpu_wv[IDX(i,j,width)] = buffer.i;
 			}
 		}
 		err = cudaMemcpy((void*)gpu_v[0], (void*)cpu_wv, (size_t) width * width * sizeof(uint4), cudaMemcpyHostToDevice);
@@ -707,27 +744,28 @@ template<class T> __host__ void __host__matrix_inv(dim3 blocks, dim3 threads, MA
 		break;
 	}
 
-	for(int i=0;;i++) {
+	for(int k=0;;k++) {
 		if(src == GLOBAL) {
-			__global__matrix_find_first_notzero__global__<T><<<1,width>>>(d_w[i&1],d_index,width,width,tolerance,pitch);
+			__global__matrix_find_first_notzero__global__<T><<<1,width>>>(d_w[k&1],d_index,width,width,tolerance,pitch);
 		}
 		else if(src == TEXTURE) {
-			err = cudaBindTexture(0, tex_w, gpu_w[i&1], (size_t) width * width * sizeof(uint4));
+			err = cudaBindTexture(0, tex_w, gpu_w[k&1], (size_t) width * width * sizeof(uint4));
 			__global__matrix_find_first_notzero__texture__<T><<<1,width>>>(d_index,width,width,tolerance);
 		}
 		err = cudaMemcpy((void*)h_index,(void*)d_index,(size_t) width * sizeof(int),cudaMemcpyDeviceToHost);
-		while(h_index[i]<0 && i<min(height,width)) i++;
-		if(i == min(height,width)) {
+		while(h_index[k]<0 && k<min(height,width)) k++;
+		if(k == min(height,width)) {
 			switch(src) {
 			case GLOBAL:
-				err = cudaMemcpy2D((void*)b->values,width*sizeof(T),(void*)d_v[i&1],pitch,width*sizeof(T),width,cudaMemcpyDeviceToHost);
+				err = cudaMemcpy2D((void*)b->values,width*sizeof(T),(void*)d_v[k&1],pitch,width*sizeof(T),width,cudaMemcpyDeviceToHost);
 				break;
 			case TEXTURE:
 				err = cudaUnbindTexture(tex_w);
-				err = cudaMemcpy((void*)cpu_wv,(void*)gpu_v[i&1],width*width*sizeof(uint4),cudaMemcpyDeviceToHost);
+				err = cudaMemcpy((void*)cpu_wv,(void*)gpu_v[k&1],width*width*sizeof(uint4),cudaMemcpyDeviceToHost);
 				for(int i=0; i<height; i++) {
 					for(int j=0; j<width; j++) {
-						b->values[IDX(i,j,width)] = *(T*)&cpu_wv[IDX(i,j,width)];
+						buffer.i=cpu_wv[IDX(i,j,width)];
+						b->values[IDX(i,j,width)] = buffer.t;
 					}
 				}
 				break;
@@ -735,41 +773,41 @@ template<class T> __host__ void __host__matrix_inv(dim3 blocks, dim3 threads, MA
 			break;
 		}
 		if(src == GLOBAL && cache == NONE) {
-			err = cudaMemcpy2D((void*)d_buffer, 1*sizeof(T), (void*)&ELEMENT(T,d_w[i&1],0,h_index[i],pitch), pitch, (size_t) 1 * sizeof(T), width, cudaMemcpyDeviceToDevice);
-			__global__matrix_gaussjordanstep__global__none__<T><<<blocks,threads>>>(d_w[i&1],d_w[1-(i&1)], i, h_index[i], width, width, pitch);
-			__global__matrix_gaussjordanstep2__global__none__<T><<<blocks,threads>>>(d_buffer,d_v[i&1],d_v[1-(i&1)], i, h_index[i], width, width, pitch);
+			err = cudaMemcpy2D((void*)d_buffer, 1*sizeof(T), (void*)&ELEMENT(T,d_w[k&1],0,h_index[k],pitch), pitch, (size_t) 1 * sizeof(T), width, cudaMemcpyDeviceToDevice);
+			__global__matrix_gaussjordanstep__global__none__<T><<<blocks,threads>>>(d_w[k&1],d_w[1-(k&1)], k, h_index[k], width, width, pitch);
+			__global__matrix_gaussjordanstep2__global__none__<T><<<blocks,threads>>>(d_buffer,d_v[k&1],d_v[1-(k&1)], k, h_index[k], width, width, pitch);
 		}
 		else if(src == GLOBAL && cache == SHARED) {
-			err = cudaMemcpy2D((void*)d_buffer, 1*sizeof(T), (void*)&ELEMENT(T,d_w[i&1],0,h_index[i],pitch), pitch, (size_t) 1 * sizeof(T), width, cudaMemcpyDeviceToDevice);
-			__global__matrix_gaussjordanstep__global__shared__<T><<<blocks,threads>>>(d_w[i&1],d_w[1-(i&1)], i, h_index[i], width, width, pitch);
-			__global__matrix_gaussjordanstep2__global__shared__<T><<<blocks,threads>>>(d_buffer,d_v[i&1],d_v[1-(i&1)], i, h_index[i], width, width, pitch);
+			err = cudaMemcpy2D((void*)d_buffer, 1*sizeof(T), (void*)&ELEMENT(T,d_w[k&1],0,h_index[k],pitch), pitch, (size_t) 1 * sizeof(T), width, cudaMemcpyDeviceToDevice);
+			__global__matrix_gaussjordanstep__global__shared__<T><<<blocks,threads>>>(d_w[k&1],d_w[1-(k&1)], k, h_index[k], width, width, pitch);
+			__global__matrix_gaussjordanstep2__global__shared__<T><<<blocks,threads>>>(d_buffer,d_v[k&1],d_v[1-(k&1)], k, h_index[k], width, width, pitch);
 		}
 		else if(src == GLOBAL && cache == LOCAL) {
-			err = cudaMemcpy2D((void*)d_buffer, 1*sizeof(T), (void*)&ELEMENT(T,d_w[i&1],0,h_index[i],pitch), pitch, (size_t) 1 * sizeof(T), width, cudaMemcpyDeviceToDevice);
-			__global__matrix_gaussjordanstep__global__local__<T><<<blocks,threads>>>(d_w[i&1],d_w[1-(i&1)], i, h_index[i], width, width, pitch);
-			__global__matrix_gaussjordanstep2__global__local__<T><<<blocks,threads>>>(d_buffer,d_v[i&1],d_v[1-(i&1)], i, h_index[i], width, width, pitch);
+			err = cudaMemcpy2D((void*)d_buffer, 1*sizeof(T), (void*)&ELEMENT(T,d_w[k&1],0,h_index[k],pitch), pitch, (size_t) 1 * sizeof(T), width, cudaMemcpyDeviceToDevice);
+			__global__matrix_gaussjordanstep__global__local__<T><<<blocks,threads>>>(d_w[k&1],d_w[1-(k&1)], k, h_index[k], width, width, pitch);
+			__global__matrix_gaussjordanstep2__global__local__<T><<<blocks,threads>>>(d_buffer,d_v[k&1],d_v[1-(k&1)], k, h_index[k], width, width, pitch);
 		}
 		else if(src == TEXTURE && cache == NONE) {
-			err = cudaMemcpy2D((void*)gpu_buffer, 1*sizeof(uint4), (void*)&gpu_w[i&1][IDX(0,h_index[i],width)], width*sizeof(uint4), (size_t) 1 * sizeof(uint4), width, cudaMemcpyDeviceToDevice);
-			err = cudaBindTexture(0, tex_v, gpu_v[i&1], (size_t) width * width * sizeof(uint4));
-			__global__matrix_gaussjordanstep__texture__none__<T><<<blocks,threads>>>(gpu_w[1-(i&1)], i, h_index[i], width, width);
-			__global__matrix_gaussjordanstep2__texture__none__<T><<<blocks,threads>>>(gpu_v[1-(i&1)], i, h_index[i], width, width);
+			err = cudaMemcpy2D((void*)gpu_buffer, 1*sizeof(uint4), (void*)&gpu_w[k&1][IDX(0,h_index[k],width)], width*sizeof(uint4), (size_t) 1 * sizeof(uint4), width, cudaMemcpyDeviceToDevice);
+			err = cudaBindTexture(0, tex_v, gpu_v[k&1], (size_t) width * width * sizeof(uint4));
+			__global__matrix_gaussjordanstep__texture__none__<T><<<blocks,threads>>>(gpu_w[1-(k&1)], k, h_index[k], width, width);
+			__global__matrix_gaussjordanstep2__texture__none__<T><<<blocks,threads>>>(gpu_v[1-(k&1)], k, h_index[k], width, width);
 			err = cudaUnbindTexture(tex_w);
 			err = cudaUnbindTexture(tex_v);
 		}
 		else if(src == TEXTURE && cache == SHARED) {
-			err = cudaMemcpy2D((void*)gpu_buffer, 1*sizeof(uint4), (void*)&gpu_w[i&1][IDX(0,h_index[i],width)], width*sizeof(uint4), (size_t) 1 * sizeof(uint4), width, cudaMemcpyDeviceToDevice);
-			err = cudaBindTexture(0, tex_v, gpu_v[i&1], (size_t) width * width * sizeof(uint4));
-			__global__matrix_gaussjordanstep__texture__shared__<T><<<blocks,threads>>>(gpu_w[1-(i&1)], i, h_index[i], width, width);
-			__global__matrix_gaussjordanstep2__texture__shared__<T><<<blocks,threads>>>(gpu_v[1-(i&1)], i, h_index[i], width, width);
+			err = cudaMemcpy2D((void*)gpu_buffer, 1*sizeof(uint4), (void*)&gpu_w[k&1][IDX(0,h_index[k],width)], width*sizeof(uint4), (size_t) 1 * sizeof(uint4), width, cudaMemcpyDeviceToDevice);
+			err = cudaBindTexture(0, tex_v, gpu_v[k&1], (size_t) width * width * sizeof(uint4));
+			__global__matrix_gaussjordanstep__texture__shared__<T><<<blocks,threads>>>(gpu_w[1-(k&1)], k, h_index[k], width, width);
+			__global__matrix_gaussjordanstep2__texture__shared__<T><<<blocks,threads>>>(gpu_v[1-(k&1)], k, h_index[k], width, width);
 			err = cudaUnbindTexture(tex_w);
 			err = cudaUnbindTexture(tex_v);
 		}
 		else if(src == TEXTURE && cache == LOCAL) {
-			err = cudaMemcpy2D((void*)gpu_buffer, 1*sizeof(uint4), (void*)&gpu_w[i&1][IDX(0,h_index[i],width)], width*sizeof(uint4), (size_t) 1 * sizeof(uint4), width, cudaMemcpyDeviceToDevice);
-			err = cudaBindTexture(0, tex_v, gpu_v[i&1], (size_t) width * width * sizeof(uint4));
-			__global__matrix_gaussjordanstep__texture__local__<T><<<blocks,threads>>>(gpu_w[1-(i&1)], i, h_index[i], width, width);
-			__global__matrix_gaussjordanstep2__texture__local__<T><<<blocks,threads>>>(gpu_v[1-(i&1)], i, h_index[i], width, width);
+			err = cudaMemcpy2D((void*)gpu_buffer, 1*sizeof(uint4), (void*)&gpu_w[k&1][IDX(0,h_index[k],width)], width*sizeof(uint4), (size_t) 1 * sizeof(uint4), width, cudaMemcpyDeviceToDevice);
+			err = cudaBindTexture(0, tex_v, gpu_v[k&1], (size_t) width * width * sizeof(uint4));
+			__global__matrix_gaussjordanstep__texture__local__<T><<<blocks,threads>>>(gpu_w[1-(k&1)], k, h_index[k], width, width);
+			__global__matrix_gaussjordanstep2__texture__local__<T><<<blocks,threads>>>(gpu_v[1-(k&1)], k, h_index[k], width, width);
 			err = cudaUnbindTexture(tex_w);
 			err = cudaUnbindTexture(tex_v);
 		}
@@ -798,3 +836,7 @@ template<class T> __host__ void __host__matrix_inv(dim3 blocks, dim3 threads, MA
 
 	err = err;
 }
+
+template __host__ void __cdecl __host__matrix_gaussjordanstep<double>(dim3 blocks, dim3 threads, MATRIX<double> *a, MATRIX<double> *b, int row, int col, MEMORY src, MEMORY dest, MEMORY cache);
+template __host__ void __cdecl __host__matrix_gaussjordan<double>(dim3 blocks, dim3 threads, MATRIX<double> *a, MATRIX<double> *b, double tolerance, MEMORY src, MEMORY dest, MEMORY cache);
+template __host__ void __cdecl __host__matrix_inv<double>(dim3 blocks, dim3 threads, MATRIX<double> *a, MATRIX<double> *b, double tolerance, MEMORY src, MEMORY dest, MEMORY cache);

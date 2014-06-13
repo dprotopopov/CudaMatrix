@@ -3,18 +3,19 @@
 #include <cuda_texture_types.h>
 #include <device_launch_parameters.h>
 
-extern __constant__ char __c__[CONST_SIZE];
+extern template __host__ void __cdecl __host__matrix_plus<double>(dim3 blocks, dim3 threads, MATRIX<double> *a, MATRIX<double> *b, MEMORY src, MEMORY dest, MEMORY cache);
+extern template __host__ void __cdecl __host__matrix_minus<double>(dim3 blocks, dim3 threads, MATRIX<double> *a, MATRIX<double> *b,MEMORY src, MEMORY dest, MEMORY cache);
+extern template __host__ void __cdecl __host__matrix_rot<double>(dim3 blocks, dim3 threads, MATRIX<double> *a, MATRIX<double> *b, MEMORY src, MEMORY dest, MEMORY cache);
+extern template __host__ void __cdecl __host__matrix_inv<double>(dim3 blocks, dim3 threads, MATRIX<double> *a, MATRIX<double> *b, double tolerance, MEMORY src, MEMORY dest, MEMORY cache);
+extern template __host__ void __cdecl __host__matrix_add<double>(dim3 blocks, dim3 threads, MATRIX<double> *a, MATRIX<double> *b, MATRIX<double> *c, MEMORY src, MEMORY dest, MEMORY cache);
+extern template __host__ void __cdecl __host__matrix_sub<double>(dim3 blocks, dim3 threads, MATRIX<double> *a, MATRIX<double> *b, MATRIX<double> *c, MEMORY src, MEMORY dest, MEMORY cache);
+extern template __host__ void __cdecl __host__matrix_mul<double>(dim3 blocks, dim3 threads, MATRIX<double> *a, MATRIX<double> *b, MATRIX<double> *c, MEMORY src, MEMORY dest, MEMORY cache);
+extern template __host__ void __cdecl __host__matrix_gaussjordanstep<double>(dim3 blocks, dim3 threads, MATRIX<double> *a, MATRIX<double> *b, int row, int col, MEMORY src, MEMORY dest, MEMORY cache);
+extern template __host__ void __cdecl __host__matrix_gaussjordan<double>(dim3 blocks, dim3 threads, MATRIX<double> *a, MATRIX<double> *b, double tolerance, MEMORY src, MEMORY dest, MEMORY cache);
+extern template void __cdecl matrix_read<double>(char *fileName, MATRIX<double> ** matrix);
+extern template void __cdecl matrix_write<double>(char *fileName, MATRIX<double> * matrix);
 
-extern texture<uint4, cudaTextureType1D, cudaReadModeElementType> __cdecl tex_a;
-extern texture<uint4, cudaTextureType1D, cudaReadModeElementType> __cdecl tex_b;
-extern texture<uint4, cudaTextureType1D, cudaReadModeElementType> __cdecl tex_w;
-extern texture<uint4, cudaTextureType1D, cudaReadModeElementType> __cdecl tex_v;
-extern texture<uint4, cudaTextureType1D, cudaReadModeElementType> __cdecl tex_buffer;
-extern uint4 * __cdecl gpu_a;
-extern uint4 * __cdecl gpu_b;
-extern uint4 * __cdecl cpu_a;
-extern uint4 * __cdecl cpu_b;
-extern uint4 * __cdecl gpu_w[2];
-extern uint4 * __cdecl gpu_v[2];
-extern uint4 * __cdecl cpu_wv;
-extern uint4 * __cdecl gpu_buffer;
+extern char * __cdecl string_stack[1024];
+extern int __cdecl string_stack_size;
+extern double __cdecl double_stack[1024];
+extern int __cdecl double_stack_size;

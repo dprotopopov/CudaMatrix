@@ -60,6 +60,7 @@ namespace CudaMatrix.Editor
             radioButtonPlus.CheckedChanged += ValueChanged;
             radioButtonMinus.CheckedChanged += ValueChanged;
             radioButtonProduct.CheckedChanged += ValueChanged;
+            radioButtonRotate.CheckedChanged += ValueChanged;
         }
 
         public int HeightA
@@ -140,6 +141,12 @@ namespace CudaMatrix.Editor
             set { radioButtonProduct.Checked = value; }
         }
 
+        public bool OperatorRotate
+        {
+            get { return radioButtonRotate.Checked; }
+            set { radioButtonRotate.Checked = value; }
+        }
+
         public string SrcMemory
         {
             get { return comboBoxSrc.Text; }
@@ -174,21 +181,31 @@ namespace CudaMatrix.Editor
             var sb = new StringBuilder();
             sb.AppendLine("show info");
             sb.AppendLine("read a \"" + Path.GetTempPath() + "MATRIX_A.csv\"");
-            sb.AppendLine("read b \"" + Path.GetTempPath() + "MATRIX_B.csv\"");
+            if(!OperatorRotate) sb.AppendLine("read b \"" + Path.GetTempPath() + "MATRIX_B.csv\"");
             sb.AppendLine("use src " + SrcMemory);
             sb.AppendLine("use dest " + DestMemory);
             sb.AppendLine("use cache " + CacheMemory);
             sb.AppendLine("set blocks " + Blocks1 + " " + Blocks2);
             sb.AppendLine("set threads " + Threads1 + " " + Threads2);
-            sb.AppendLine("let c = a " + OpCode + " b");
-            sb.AppendLine("write c \"" + Path.GetTempPath() + "MATRIX_C.csv\"");
+            if (!OperatorRotate) sb.AppendLine("let c = a " + OpCode + " b");
+            if (OperatorRotate) sb.AppendLine("let b = rot a");
+            if (!OperatorRotate) sb.AppendLine("write c \"" + Path.GetTempPath() + "MATRIX_C.csv\"");
+            if (OperatorRotate) sb.AppendLine("write b \"" + Path.GetTempPath() + "MATRIX_B.csv\"");
             sb.AppendLine("free a");
             sb.AppendLine("free b");
-            sb.AppendLine("free c");
+            if (!OperatorRotate) sb.AppendLine("free c");
             textBoxScript.Text = sb.ToString();
 
-            HeightC = HeightA;
-            WidthC = WidthB;
+            if (OperatorRotate)
+            {
+                WidthB = HeightA;
+                HeightB = WidthA;
+            }
+            else
+            {
+                HeightC = HeightA;
+                WidthC = WidthB;
+            }
 
             _dataGridViewMatrixA.ResizeOurself(HeightA, WidthA);
             _dataGridViewMatrixB.ResizeOurself(HeightB, WidthB);
@@ -218,20 +235,22 @@ namespace CudaMatrix.Editor
                     }
                 writer.Close();
             }
-            matrix = _dataGridViewMatrixB.TheData;
-            using (var writer = new StreamWriter(File.Open(fileNameB, FileMode.Create)))
+            if (!OperatorRotate)
             {
-                for (int i = 0; i < matrix.GetLength(0); i++)
-                    for (int j = 0; j < matrix.GetLength(1); j++)
-                    {
-                        await writer.WriteAsync(matrix[i, j]);
-                        if (j < matrix.GetLength(1) - 1) await writer.WriteAsync(";");
-                        else await writer.WriteLineAsync();
-                    }
-                writer.Close();
+                matrix = _dataGridViewMatrixB.TheData;
+                using (var writer = new StreamWriter(File.Open(fileNameB, FileMode.Create)))
+                {
+                    for (int i = 0; i < matrix.GetLength(0); i++)
+                        for (int j = 0; j < matrix.GetLength(1); j++)
+                        {
+                            await writer.WriteAsync(matrix[i, j]);
+                            if (j < matrix.GetLength(1) - 1) await writer.WriteAsync(";");
+                            else await writer.WriteLineAsync();
+                        }
+                    writer.Close();
+                }
             }
-
-            string command = string.Format("/C cudamatrix.exe < \"{0}\" >> \"{1}\"", fileNameScript, fileNameLog);
+            string command = string.Format("/C cudamatrix.exe < \"{0}\" > \"{1}\"", fileNameScript, fileNameLog);
             Debug.WriteLine(command);
 
             DateTime start = DateTime.Now;
@@ -242,30 +261,53 @@ namespace CudaMatrix.Editor
 
             DateTime end = DateTime.Now;
 
-
-            matrix = new string[HeightC, WidthC];
-
-            var regex = new Regex(@"\s*(?<data>\d*)\s*([;]|\Z)");
-            using (var reader = new StreamReader(File.Open(fileNameC, FileMode.Open)))
+            var regex = new Regex(@"\s*(?<data>[-]?\d*(\.\d*)?)\s*([;]|\Z)");
+            if (OperatorRotate)
             {
-                int row = 0;
-                for (string line = await reader.ReadLineAsync();;
-                    line = await reader.ReadLineAsync())
+                matrix = new string[HeightB, WidthB];
+                using (var reader = new StreamReader(File.Open(fileNameB, FileMode.Open)))
                 {
-                    int col = 0;
-                    foreach (
-                        Match match in
-                            regex.Matches(line)
-                                .Cast<Match>()
-                                .Where(match => row < matrix.GetLength(0) && col < matrix.GetLength(1)))
-                        matrix[row, col++] = match.Groups["data"].Value;
-                    if (reader.EndOfStream) break;
-                    row++;
+                    int row = 0;
+                    for (string line = await reader.ReadLineAsync(); ;
+                        line = await reader.ReadLineAsync())
+                    {
+                        int col = 0;
+                        foreach (
+                            Match match in
+                                regex.Matches(line)
+                                    .Cast<Match>()
+                                    .Where(match => row < matrix.GetLength(0) && col < matrix.GetLength(1)))
+                            matrix[row, col++] = match.Groups["data"].Value;
+                        if (reader.EndOfStream) break;
+                        row++;
+                    }
+                    reader.Close();
                 }
-                reader.Close();
+                _dataGridViewMatrixB.TheData = matrix;
             }
-            _dataGridViewMatrixC.TheData = matrix;
-
+            if (!OperatorRotate)
+            {
+                matrix = new string[HeightC, WidthC];
+                using (var reader = new StreamReader(File.Open(fileNameC, FileMode.Open)))
+                {
+                    int row = 0;
+                    for (string line = await reader.ReadLineAsync(); ;
+                        line = await reader.ReadLineAsync())
+                    {
+                        int col = 0;
+                        foreach (
+                            Match match in
+                                regex.Matches(line)
+                                    .Cast<Match>()
+                                    .Where(match => row < matrix.GetLength(0) && col < matrix.GetLength(1)))
+                            matrix[row, col++] = match.Groups["data"].Value;
+                        if (reader.EndOfStream) break;
+                        row++;
+                    }
+                    reader.Close();
+                }
+                _dataGridViewMatrixC.TheData = matrix;
+            }
             using (var reader = new StreamReader(File.Open(fileNameLog, FileMode.Open)))
             {
                 textBoxLog.Text = await reader.ReadToEndAsync();
