@@ -1,0 +1,15 @@
+Матрицы А,В
+Размеры height x hw и hw x width
+
+запуск <<<blocks, threads>>>
+
+Размер выделяемого блока shared памяти = (height/blocks.x)*hw + hw*(width/block.y) элементов
+Суммарно ((height/blocks.x)*hw + hw*(width/block.y))*blocks.x*blocks.y
+
+Размер выделяемого блока local памяти = (height/(blocks.x*threads.x))*hw + hw*(width/(blocks.y*threads.y)) элементов
+Суммарно ((height/(blocks.x*threads.x))*hw + hw*(width/(blocks.y*threads.y)))*blocks.x*blocks.y*threads.x*threads.y
+
+
+#define CONST_SIZE	(1<<10)
+#define SHARED_SIZE	(1<<10)
+#define LOCAL_SIZE	(1<<10)

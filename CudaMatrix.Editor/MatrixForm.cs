@@ -221,7 +221,7 @@ namespace CudaMatrix.Editor
             string fileNameScript = Path.GetTempPath() + "MATRIX.SCRIPT";
             using (var writer = new StreamWriter(File.Open(fileNameScript, FileMode.Create)))
             {
-                writer.WriteAsync(textBoxScript.Text);
+                await writer.WriteAsync(textBoxScript.Text);
             }
             string[,] matrix = _dataGridViewMatrixA.TheData;
             using (var writer = new StreamWriter(File.Open(fileNameA, FileMode.Create)))

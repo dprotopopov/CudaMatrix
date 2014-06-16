@@ -41,7 +41,7 @@ template<class T> __global__ void __global__matrix_mul__global__shared__(T *a, T
 
 	for (int i = threadIdx.x; i < width_height; i += blockDim.x) {
 		for (int j = threadIdx.y; j < sharedCountY; j+= blockDim.y) {
-			__s__[SHARED_SIZE - IDX(i,j,width) - 1] = ELEMENT(T,b,i,sharedIndexY+j,pitch2);
+			__s__[SHARED_SIZE - IDX(i,j,sharedCountY) - 1] = ELEMENT(T,b,i,sharedIndexY+j,pitch2);
 		}
 	}
 
@@ -51,7 +51,7 @@ template<class T> __global__ void __global__matrix_mul__global__shared__(T *a, T
 		for (int j = threadIdx.y; j < sharedCountY; j += blockDim.y) {
 			T sum = 0;
 			for(int k=0; k<width_height; k++) {
-				sum += __s__[IDX(i,k,width_height)] * __s__[SHARED_SIZE - IDX(k,j,width) - 1];
+				sum += __s__[IDX(i,k,width_height)] * __s__[SHARED_SIZE - IDX(k,j,sharedCountY) - 1];
 			}
 			ELEMENT(T,c,sharedIndexX+i,sharedIndexY+j,pitch3) = sum;
 		}
@@ -84,7 +84,7 @@ template<class T> __global__ void __global__matrix_mul__global__local__(T *a, T 
 
 	for (int i = 0; i < width_height; i ++) {
 		for (int j = 0; j < localCountY; j++) {
-			__l__[LOCAL_SIZE - IDX(i,j,width) - 1] = ELEMENT(T,b,i,localIndexY+j,pitch2);
+			__l__[LOCAL_SIZE - IDX(i,j,localCountY) - 1] = ELEMENT(T,b,i,localIndexY+j,pitch2);
 		}
 	}
 
@@ -92,7 +92,7 @@ template<class T> __global__ void __global__matrix_mul__global__local__(T *a, T 
 		for (int j = 0; j < localCountY; j++ ) {
 			T sum = 0;
 			for(int k=0; k<width_height; k++) {
-				sum += __l__[IDX(i,k,width_height)] * __l__[LOCAL_SIZE - IDX(k,j,width) - 1];
+				sum += __l__[IDX(i,k,width_height)] * __l__[LOCAL_SIZE - IDX(k,j,localCountY) - 1];
 			}
 			ELEMENT(T,c,localIndexX+i,localIndexY+j,pitch3) = sum;
 		}
@@ -147,7 +147,7 @@ template<class T> __global__ void __global__matrix_mul__constant__shared__(T *c,
 	for (int i = threadIdx.x; i < width_height; i += blockDim.x) {
 		for (int j = threadIdx.y; j < sharedCountY; j += blockDim.y) {
 			buffer_b.i = __c__[IDX(i,sharedIndexY+j,width)+IDX(height,0,width_height)];
-			__s__[SHARED_SIZE - IDX(i,j,width) - 1] = buffer_b.t;
+			__s__[SHARED_SIZE - IDX(i,j,sharedCountY) - 1] = buffer_b.t;
 		}
 	}
 
@@ -157,7 +157,7 @@ template<class T> __global__ void __global__matrix_mul__constant__shared__(T *c,
 		for (int j = threadIdx.y; j < sharedCountY; j += blockDim.y) {
 			T sum = 0;
 			for(int k=0; k<width_height; k++) {
-				sum += __s__[IDX(i,k,width_height)] * __s__[SHARED_SIZE - IDX(k,j,width) - 1];
+				sum += __s__[IDX(i,k,width_height)] * __s__[SHARED_SIZE - IDX(k,j,sharedCountY) - 1];
 			}
 			ELEMENT(T,c,sharedIndexX+i,sharedIndexY+j,pitch) = sum;
 		}
@@ -194,7 +194,7 @@ template<class T> __global__ void __global__matrix_mul__constant__local__(T *c, 
 	for (int i = 0; i < width_height; i ++) {
 		for (int j = 0; j < localCountY; j++) {
 			buffer_b.i = __c__[IDX(i,localIndexY+j,width)+IDX(height,0,width_height)];
-			__l__[LOCAL_SIZE - IDX(i,j,width) - 1] = buffer_b.t;
+			__l__[LOCAL_SIZE - IDX(i,j,localCountY) - 1] = buffer_b.t;
 		}
 	}
 
@@ -202,7 +202,7 @@ template<class T> __global__ void __global__matrix_mul__constant__local__(T *c, 
 		for (int j = 0; j < localCountY; j++ ) {
 			T sum = 0;
 			for(int k=0; k<width_height; k++) {
-				sum += __l__[IDX(i,k,width_height)] * __l__[LOCAL_SIZE - IDX(k,j,width) - 1];
+				sum += __l__[IDX(i,k,width_height)] * __l__[LOCAL_SIZE - IDX(k,j,localCountY) - 1];
 			}
 			ELEMENT(T,c,localIndexX+i,localIndexY+j,pitch) = sum;
 		}
@@ -257,7 +257,7 @@ template<class T> __global__ void __global__matrix_mul__texture__shared__(T *c, 
 	for (int i = threadIdx.x; i < width_height; i += blockDim.x) {
 		for (int j = threadIdx.y; j < sharedCountY; j+= blockDim.y) {
 			buffer_b.i = tex1Dfetch(tex_b,IDX(i,sharedIndexY+j,width));
-			__s__[SHARED_SIZE - IDX(i,j,width) - 1] = buffer_b.t;
+			__s__[SHARED_SIZE - IDX(i,j,sharedCountY) - 1] = buffer_b.t;
 		}
 	}
 
@@ -267,7 +267,7 @@ template<class T> __global__ void __global__matrix_mul__texture__shared__(T *c, 
 		for (int j = threadIdx.y; j < sharedCountY; j += blockDim.y) {
 			T sum = 0;
 			for(int k=0; k<width_height; k++) {
-				sum += __s__[IDX(i,k,width_height)] * __s__[SHARED_SIZE - IDX(k,j,width) - 1];
+				sum += __s__[IDX(i,k,width_height)] * __s__[SHARED_SIZE - IDX(k,j,sharedCountY) - 1];
 			}
 			ELEMENT(T,c,sharedIndexX+i,sharedIndexY+j,pitch) = sum;
 		}
@@ -304,7 +304,7 @@ template<class T> __global__ void __global__matrix_mul__texture__local__(T *c, i
 	for (int i = 0; i < width_height; i ++) {
 		for (int j = 0; j < localCountY; j++) {
 			buffer_b.i = tex1Dfetch(tex_b,IDX(i,localIndexY+j,width));
-			__l__[LOCAL_SIZE - IDX(i,j,width) - 1] = buffer_b.t;
+			__l__[LOCAL_SIZE - IDX(i,j,localCountY) - 1] = buffer_b.t;
 		}
 	}
 
@@ -312,7 +312,7 @@ template<class T> __global__ void __global__matrix_mul__texture__local__(T *c, i
 		for (int j = 0; j < localCountY; j++ ) {
 			T sum = 0;
 			for(int k=0; k<width_height; k++) {
-				sum += __l__[IDX(i,k,width_height)] * __l__[LOCAL_SIZE - IDX(k,j,width) - 1];
+				sum += __l__[IDX(i,k,width_height)] * __l__[LOCAL_SIZE - IDX(k,j,localCountY) - 1];
 			}
 			ELEMENT(T,c,localIndexX+i,localIndexY+j,pitch) = sum;
 		}
