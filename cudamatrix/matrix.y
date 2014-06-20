@@ -4,13 +4,13 @@
 
 void yyerror(char *);
 int yylex(void);
-MATRIX<double> * sym[26];
+MATRIX<DATATYPE> * sym[26];
 MEMORY source_memory = TEXTURE;
 MEMORY dest_memory = GLOBAL;
 MEMORY cache_memory = SHARED;
 dim3 blocks = dim3(1,1,1);
 dim3 threads = dim3(1,1,1);
-double tolerance = 0.0;
+DATATYPE tolerance = 0;
 
 %}
 %token SHOW_KEYWORD INFO_KEYWORD HELP_KEYWORD
@@ -34,64 +34,64 @@ statement:
 			if ($3==$4) { yyerror("L-value must be different from R-value"); exit(-1); }
 			int height = sym[$4]->height;
 			int width = sym[$4]->width;
-			sym[$2] = (MATRIX<double> *)malloc(sizeof(MATRIX<double>)+(width * height * sizeof(double)));
+			sym[$2] = (MATRIX<DATATYPE> *)malloc(sizeof(MATRIX<DATATYPE>)+(width * height * sizeof(DATATYPE)));
 			sym[$2]->height = height;
 			sym[$2]->width = width;
-			memcpy(sym[$4]->values,sym[$2]->values,height*width*sizeof(double)); 
+			memcpy(sym[$4]->values,sym[$2]->values,height*width*sizeof(DATATYPE)); 
 		}
 	| LET_KEYWORD VARIABLE '=' '+' VARIABLE { 
 			if ($2==$5) { yyerror("L-value must be different from R-value"); exit(-1); }
 			int height = sym[$5]->height;
 			int width = sym[$5]->width;
-			sym[$2] = (MATRIX<double> *)malloc(sizeof(MATRIX<double>)+(width * height * sizeof(double)));
+			sym[$2] = (MATRIX<DATATYPE> *)malloc(sizeof(MATRIX<DATATYPE>)+(width * height * sizeof(DATATYPE)));
 			sym[$2]->height = height;
 			sym[$2]->width = width;
-			__host__matrix_plus<double>(blocks,threads,sym[$5],sym[$2],source_memory,dest_memory,cache_memory); 
+			__host__matrix_plus<DATATYPE>(blocks,threads,sym[$5],sym[$2],source_memory,dest_memory,cache_memory); 
 		}
 	| LET_KEYWORD VARIABLE '=' '-' VARIABLE { 
 			if ($2==$5) { yyerror("L-value must be different from R-value"); exit(-1); }
 			int height = sym[$5]->height;
 			int width = sym[$5]->width;
-			sym[$2] = (MATRIX<double> *)malloc(sizeof(MATRIX<double>)+(width * height * sizeof(double)));
+			sym[$2] = (MATRIX<DATATYPE> *)malloc(sizeof(MATRIX<DATATYPE>)+(width * height * sizeof(DATATYPE)));
 			sym[$2]->height = height;
 			sym[$2]->width = width;
-			__host__matrix_minus<double>(blocks,threads,sym[$5],sym[$2],source_memory,dest_memory,cache_memory); 
+			__host__matrix_minus<DATATYPE>(blocks,threads,sym[$5],sym[$2],source_memory,dest_memory,cache_memory); 
 		}
 	| LET_KEYWORD VARIABLE '=' ROT_KEYWORD VARIABLE { 
 			if ($2==$5) { yyerror("L-value must be different from R-value"); exit(-1); }
 			int height = sym[$5]->height;
 			int width = sym[$5]->width;
-			sym[$2] = (MATRIX<double> *)malloc(sizeof(MATRIX<double>)+(width * height * sizeof(double)));
+			sym[$2] = (MATRIX<DATATYPE> *)malloc(sizeof(MATRIX<DATATYPE>)+(width * height * sizeof(DATATYPE)));
 			sym[$2]->height = height;
 			sym[$2]->width = width;
-			__host__matrix_rot<double>(blocks,threads,sym[$5],sym[$2],source_memory,dest_memory,cache_memory); 
+			__host__matrix_rot<DATATYPE>(blocks,threads,sym[$5],sym[$2],source_memory,dest_memory,cache_memory); 
 		}
 	| LET_KEYWORD VARIABLE '=' INV_KEYWORD VARIABLE { 
 			if ($2==$5) { yyerror("L-value must be different from R-value"); exit(-1); }
 			int height = sym[$5]->height;
 			int width = sym[$5]->width;
-			sym[$2] = (MATRIX<double> *)malloc(sizeof(MATRIX<double>)+(width * height * sizeof(double)));
+			sym[$2] = (MATRIX<DATATYPE> *)malloc(sizeof(MATRIX<DATATYPE>)+(width * height * sizeof(DATATYPE)));
 			sym[$2]->height = height;
 			sym[$2]->width = width;
-			__host__matrix_inv<double>(blocks,threads,sym[$5],sym[$2],tolerance,source_memory,dest_memory,cache_memory); 
+			__host__matrix_inv<DATATYPE>(blocks,threads,sym[$5],sym[$2],tolerance,source_memory,dest_memory,cache_memory); 
 		}
 	| LET_KEYWORD VARIABLE '=' GAUSSJORDAN_KEYWORD INTEGER INTEGER VARIABLE { 
 			if ($2==$7) { yyerror("L-value must be different from R-value"); exit(-1); }
 			int height = sym[$7]->height;
 			int width = sym[$7]->width;
-			sym[$2] = (MATRIX<double> *)malloc(sizeof(MATRIX<double>)+(width * height * sizeof(double)));
+			sym[$2] = (MATRIX<DATATYPE> *)malloc(sizeof(MATRIX<DATATYPE>)+(width * height * sizeof(DATATYPE)));
 			sym[$2]->height = height;
 			sym[$2]->width = width;
-			__host__matrix_gaussjordanstep<double>(blocks,threads,sym[$7],sym[$1],$5,$6,source_memory,dest_memory,cache_memory); 
+			__host__matrix_gaussjordanstep<DATATYPE>(blocks,threads,sym[$7],sym[$1],$5,$6,source_memory,dest_memory,cache_memory); 
 		}
 	| LET_KEYWORD VARIABLE '=' GAUSSJORDAN_KEYWORD VARIABLE { 
 			if ($2==$5) { yyerror("L-value must be different from R-value"); exit(-1); }
 			int height = sym[$5]->height;
 			int width = sym[$5]->width;
-			sym[$2] = (MATRIX<double> *)malloc(sizeof(MATRIX<double>)+(width * height * sizeof(double)));
+			sym[$2] = (MATRIX<DATATYPE> *)malloc(sizeof(MATRIX<DATATYPE>)+(width * height * sizeof(DATATYPE)));
 			sym[$2]->height = height;
 			sym[$2]->width = width;
-			__host__matrix_gaussjordan<double>(blocks,threads,sym[$5],sym[$2],tolerance,source_memory,dest_memory,cache_memory); 
+			__host__matrix_gaussjordan<DATATYPE>(blocks,threads,sym[$5],sym[$2],tolerance,source_memory,dest_memory,cache_memory); 
 		}
 	| LET_KEYWORD VARIABLE '=' VARIABLE '+' VARIABLE { 
 			if ($2==$4) { yyerror("L-value must be different from R-value"); exit(-1); }
@@ -100,10 +100,10 @@ statement:
 			if (sym[$4]->width!=sym[$6]->width) { yyerror("First argument width must be equal second argument width"); exit(-1); }
 			int height = sym[$4]->height;
 			int width = sym[$6]->width;
-			sym[$2] = (MATRIX<double> *)malloc(sizeof(MATRIX<double>)+(width * height * sizeof(double)));
+			sym[$2] = (MATRIX<DATATYPE> *)malloc(sizeof(MATRIX<DATATYPE>)+(width * height * sizeof(DATATYPE)));
 			sym[$2]->height = height;
 			sym[$2]->width = width;
-			__host__matrix_add<double>(blocks,threads,sym[$4],sym[$6],sym[$2],source_memory,dest_memory,cache_memory); 
+			__host__matrix_add<DATATYPE>(blocks,threads,sym[$4],sym[$6],sym[$2],source_memory,dest_memory,cache_memory); 
 		}
 	| LET_KEYWORD VARIABLE '=' VARIABLE '-' VARIABLE { 
 			if ($2==$4) { yyerror("L-value must be different from R-value"); exit(-1); }
@@ -112,10 +112,10 @@ statement:
 			if (sym[$4]->width!=sym[$6]->width) { yyerror("First argument width must be equal second argument width"); exit(-1); }
 			int height = sym[$4]->height;
 			int width = sym[$6]->width;
-			sym[$2] = (MATRIX<double> *)malloc(sizeof(MATRIX<double>)+(width * height * sizeof(double)));
+			sym[$2] = (MATRIX<DATATYPE> *)malloc(sizeof(MATRIX<DATATYPE>)+(width * height * sizeof(DATATYPE)));
 			sym[$2]->height = height;
 			sym[$2]->width = width;
-			__host__matrix_sub<double>(blocks,threads,sym[$4],sym[$6],sym[$2],source_memory,dest_memory,cache_memory); 
+			__host__matrix_sub<DATATYPE>(blocks,threads,sym[$4],sym[$6],sym[$2],source_memory,dest_memory,cache_memory); 
 		}
 	| LET_KEYWORD VARIABLE '=' VARIABLE '*' VARIABLE { 
 			if ($2==$4) { yyerror("L-value must be different from R-value"); exit(-1); }
@@ -124,13 +124,13 @@ statement:
 			int height = sym[$4]->height;
 			int width_height = sym[$4]->width;
 			int width = sym[$6]->width;
-			sym[$2] = (MATRIX<double> *)malloc(sizeof(MATRIX<double>)+(width * height * sizeof(double)));
+			sym[$2] = (MATRIX<DATATYPE> *)malloc(sizeof(MATRIX<DATATYPE>)+(width * height * sizeof(DATATYPE)));
 			sym[$2]->height = height;
 			sym[$2]->width = width;
-			__host__matrix_mul<double>(blocks,threads,sym[$4],sym[$6],sym[$2],source_memory,dest_memory,cache_memory); 
+			__host__matrix_mul<DATATYPE>(blocks,threads,sym[$4],sym[$6],sym[$2],source_memory,dest_memory,cache_memory); 
 		}
-	| READ_KEYWORD VARIABLE STRING { matrix_read<double>(string_stack[$3], &sym[$2]); }
-	| WRITE_KEYWORD VARIABLE STRING { matrix_write<double>(string_stack[$3], sym[$2]); }
+	| READ_KEYWORD VARIABLE STRING { matrix_read<DATATYPE>(string_stack[$3], &sym[$2]); }
+	| WRITE_KEYWORD VARIABLE STRING { matrix_write<DATATYPE>(string_stack[$3], sym[$2]); }
 	| USE_KEYWORD SRC_KEYWORD TEXTURE_KEYWORD { source_memory = TEXTURE; }
 	| USE_KEYWORD SRC_KEYWORD CONSTANT_KEYWORD { source_memory = CONSTANT; }
 	| USE_KEYWORD SRC_KEYWORD GLOBAL_KEYWORD { source_memory = GLOBAL; }
@@ -142,7 +142,7 @@ statement:
 	| SET_KEYWORD THREADS_KEYWORD INTEGER INTEGER { threads = dim3($3,$4,1); }
 	| SET_KEYWORD TOLERANCE_KEYWORD DOUBLE { tolerance = double_stack[$3]; }
 	| ALLOC_KEYWORD VARIABLE INTEGER INTEGER { 
-			sym[$2] = (MATRIX<double> *)malloc(sizeof(MATRIX<double>)+($3 * $4 * sizeof(double)));
+			sym[$2] = (MATRIX<DATATYPE> *)malloc(sizeof(MATRIX<DATATYPE>)+($3 * $4 * sizeof(DATATYPE)));
 			sym[$2]->height = $3;
 			sym[$2]->width = $4;
 		}

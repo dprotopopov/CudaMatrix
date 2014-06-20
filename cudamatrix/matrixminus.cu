@@ -12,9 +12,9 @@ template<class T> __global__ void __global__matrix_minus__global__(T *a, T *b, i
 
 // ”нарный минус матрицы с использованием constant пам€ти
 template<class T> __global__ void __global__matrix_minus__constant__(T *b, int height, int width, size_t pitch) {
+	storage<T> buffer_a;
 	for (int i = blockDim.x*blockIdx.x + threadIdx.x; i < height; i += blockDim.x*gridDim.x) {
 		for (int j = blockDim.y*blockIdx.y + threadIdx.y; j < width; j += blockDim.y*gridDim.y) {
-			storage<T> buffer_a;
 			buffer_a.i = __c__[IDX(i,j,width)];
 			ELEMENT(T,b,i,j,pitch) = -buffer_a.t;
 		}
@@ -22,9 +22,9 @@ template<class T> __global__ void __global__matrix_minus__constant__(T *b, int h
 }
 // ”нарный минус матрицы с использованием texture пам€ти
 template<class T> __global__ void __global__matrix_minus__texture__(T *b, int height, int width, size_t pitch) {
+	texturestorage<T> buffer_a;
 	for (int i = blockDim.x*blockIdx.x + threadIdx.x; i < height; i += blockDim.x*gridDim.x) {
 		for (int j = blockDim.y*blockIdx.y + threadIdx.y; j < width; j += blockDim.y*gridDim.y) {
-			storage<T> buffer_a;
 			buffer_a.i = tex1Dfetch(tex_a,IDX(i,j,width));
 			ELEMENT(T,b,i,j,pitch) = -buffer_a.t;
 		}
@@ -32,12 +32,14 @@ template<class T> __global__ void __global__matrix_minus__texture__(T *b, int he
 }
 
 template<class T> __host__ void __cdecl __host__matrix_minus(dim3 blocks, dim3 threads, MATRIX<T> *a, MATRIX<T> *b, MEMORY src, MEMORY dest, MEMORY cache) {
+	T * h_a;
 	T * d_a;
 	T * d_b;
 	size_t pitch1;
 	size_t pitch2;
 	cudaError_t err;
 	storage<T> buffer;
+	texturestorage<T> texturebuffer;
 
 	int height = a->height;
 	int width =  a->width;
@@ -46,12 +48,12 @@ template<class T> __host__ void __cdecl __host__matrix_minus(dim3 blocks, dim3 t
 
 	switch(src) {
 	case TEXTURE:
-		err = cudaMallocHost((void**)&cpu_a, (size_t) a->width * a->height * sizeof(uint4));
-		err = cudaMalloc((void**)&gpu_a, (size_t) a->width * a->height * sizeof(uint4));
+		err = cudaMallocHost((void**)&cpu_a, (size_t) a->width * a->height * sizeof(TEXTURESTORAGETYPE));
+		err = cudaMalloc((void**)&gpu_a, (size_t) a->width * a->height * sizeof(TEXTURESTORAGETYPE));
 		for(int i=0; i<a->height; i++) {
 			for(int j=0; j<a->width; j++) {
-				buffer.t = a->values[IDX(i,j,width)];
-				cpu_a[IDX(i,j,width)] = buffer.i;
+				texturebuffer.t = a->values[IDX(i,j,width)];
+				cpu_a[IDX(i,j,width)] = texturebuffer.i;
 			}
 		}
 		//  настройка параемтров текстуры  texture
@@ -59,8 +61,8 @@ template<class T> __host__ void __cdecl __host__matrix_minus(dim3 blocks, dim3 t
 		tex_a.addressMode[1] = cudaAddressModeWrap;
 		tex_a.filterMode     = cudaFilterModePoint;  // ближайшее значение
 		tex_a.normalized     = false;                // не использовать нормализованную адресацию
-		err = cudaMemcpy((void*)gpu_a, (void*)cpu_a, (size_t) a->width * a->height * sizeof(uint4), cudaMemcpyHostToDevice);
-		err = cudaBindTexture(0, tex_a, gpu_a, (size_t) a->width * a->height * sizeof(uint4));
+		err = cudaMemcpy((void*)gpu_a, (void*)cpu_a, (size_t) a->width * a->height * sizeof(TEXTURESTORAGETYPE), cudaMemcpyHostToDevice);
+		err = cudaBindTexture(0, tex_a, gpu_a, (size_t) a->width * a->height * sizeof(TEXTURESTORAGETYPE));
 		err = cudaFreeHost((void*)cpu_a);
 		break;
 	case GLOBAL:
@@ -68,16 +70,16 @@ template<class T> __host__ void __cdecl __host__matrix_minus(dim3 blocks, dim3 t
 		err = cudaMemcpy2D((void*)d_a, pitch1, (void*)a->values, (size_t) a->width * sizeof(T), (size_t) width * sizeof(T), (size_t) height, cudaMemcpyHostToDevice);
 		break;
 	case CONSTANT:
-		err = cudaMallocHost((void**)&cpu_a, (size_t) a->width * a->height * sizeof(uint4));
+		err = cudaMallocHost((void**)&h_a, (size_t) a->width * a->height * sizeof(STORAGETYPE));
 		for(int i=0; i<a->height; i++) {
 			for(int j=0; j<a->width; j++) {
 				buffer.t = a->values[IDX(i,j,width)];
-				cpu_a[IDX(i,j,width)] = buffer.i;
+				h_a[IDX(i,j,width)] = buffer.i;
 			}
 		}
-		err = cudaGetSymbolAddress((void **)&gpu_a, __c__);
-		err = cudaMemcpy(gpu_a, cpu_a, (size_t) height * width * sizeof(uint4), cudaMemcpyHostToDevice);		
-		err = cudaFreeHost((void*)cpu_a);
+		err = cudaGetSymbolAddress((void **)&d_a, __c__);
+		err = cudaMemcpy(d_a, h_a, (size_t) height * width * sizeof(STORAGETYPE), cudaMemcpyHostToDevice);		
+		err = cudaFreeHost((void*)h_a);
 		break;
 	default:
 		break;
@@ -122,4 +124,4 @@ template<class T> __host__ void __cdecl __host__matrix_minus(dim3 blocks, dim3 t
 	err = err;
 }
 
-template __host__ void __cdecl __host__matrix_minus<double>(dim3 blocks, dim3 threads, MATRIX<double> *a, MATRIX<double> *b,MEMORY src, MEMORY dest, MEMORY cache);
+template __host__ void __cdecl __host__matrix_minus<DATATYPE>(dim3 blocks, dim3 threads, MATRIX<DATATYPE> *a, MATRIX<DATATYPE> *b,MEMORY src, MEMORY dest, MEMORY cache);

@@ -323,16 +323,14 @@ namespace CudaMatrix.Editor
             for (int i = 0; i < matrix.GetLength(0); i++)
                 for (int j = 0; j < matrix.GetLength(1); j++)
                 {
-                    matrix[i, j] =
-                        (minimum + (maximum - minimum)*Rnd.NextDouble()).ToString(CultureInfo.InvariantCulture);
+                    matrix[i, j] =Convert.ToInt16(minimum + (maximum - minimum) * Rnd.NextDouble()).ToString(CultureInfo.InvariantCulture);
                 }
             _dataGridViewMatrixA.TheData = matrix;
             matrix = new string[HeightB, WidthB];
             for (int i = 0; i < matrix.GetLength(0); i++)
                 for (int j = 0; j < matrix.GetLength(1); j++)
                 {
-                    matrix[i, j] =
-                        (minimum + (maximum - minimum)*Rnd.NextDouble()).ToString(CultureInfo.InvariantCulture);
+                    matrix[i, j] =Convert.ToInt16(minimum + (maximum - minimum)*Rnd.NextDouble()).ToString(CultureInfo.InvariantCulture);
                 }
             _dataGridViewMatrixB.TheData = matrix;
         }

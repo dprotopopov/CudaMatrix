@@ -20,18 +20,18 @@
 // This means symbols don't need defined in the same translation unit, they can be forward declared 
 // and the linker will handle symbol matching during a device code linkage pass.
 
-__constant__ uint4 __cdecl __c__[CONST_SIZE];
+__constant__ STORAGETYPE __cdecl __c__[CONST_SIZE];
 
-extern texture<uint4, cudaTextureType1D, cudaReadModeElementType> __cdecl tex_a;
-extern texture<uint4, cudaTextureType1D, cudaReadModeElementType> __cdecl tex_b;
-extern texture<uint4, cudaTextureType1D, cudaReadModeElementType> __cdecl tex_w;
-extern texture<uint4, cudaTextureType1D, cudaReadModeElementType> __cdecl tex_v;
-extern texture<uint4, cudaTextureType1D, cudaReadModeElementType> __cdecl tex_buffer;
-extern uint4 * __cdecl gpu_a;
-extern uint4 * __cdecl gpu_b;
-extern uint4 * __cdecl cpu_a;
-extern uint4 * __cdecl cpu_b;
-extern uint4 * __cdecl gpu_w[];
-extern uint4 * __cdecl gpu_v[];
-extern uint4 * __cdecl cpu_wv;
-extern uint4 * __cdecl gpu_buffer;
+extern texture<TEXTURESTORAGETYPE, cudaTextureType1D, cudaReadModeElementType> __cdecl tex_a;
+extern texture<TEXTURESTORAGETYPE, cudaTextureType1D, cudaReadModeElementType> __cdecl tex_b;
+extern texture<TEXTURESTORAGETYPE, cudaTextureType1D, cudaReadModeElementType> __cdecl tex_w;
+extern texture<TEXTURESTORAGETYPE, cudaTextureType1D, cudaReadModeElementType> __cdecl tex_v;
+extern texture<TEXTURESTORAGETYPE, cudaTextureType1D, cudaReadModeElementType> __cdecl tex_buffer;
+extern TEXTURESTORAGETYPE * __cdecl gpu_a;
+extern TEXTURESTORAGETYPE * __cdecl gpu_b;
+extern TEXTURESTORAGETYPE * __cdecl cpu_a;
+extern TEXTURESTORAGETYPE * __cdecl cpu_b;
+extern TEXTURESTORAGETYPE * __cdecl gpu_w[];
+extern TEXTURESTORAGETYPE * __cdecl gpu_v[];
+extern TEXTURESTORAGETYPE * __cdecl cpu_wv;
+extern TEXTURESTORAGETYPE * __cdecl gpu_buffer;

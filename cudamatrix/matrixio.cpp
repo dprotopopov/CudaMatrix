@@ -65,7 +65,7 @@ template<class T> void __cdecl matrix_read(char *fileName, MATRIX<T> ** matrix) 
 		int j = 0;
 		for (tok = mystrtok(&p, tok, ';'); tok != NULL; tok = mystrtok(&p, NULL, ';'))
 		{
-			(*matrix)->values[IDX(i,j++,width)] = strempty(tok) ? (T)0 : (T)atof(tok);
+			(*matrix)->values[IDX(i,j++,width)] = strempty(tok) ? (T)0 : (T)fn_ATODATATYPE(tok);
 		}
 		for (; j < width; j++) (*matrix)->values[IDX(i,j,width)] = (T)0;
 	}
@@ -85,11 +85,12 @@ template<class T> void __cdecl matrix_write(char *fileName, MATRIX<T> * matrix) 
 	}
 	for (i = 0; i < height; i++) {
 		for (j = 0; j < width; j++) {
-			fprintf(fs, "%f%s", (double)matrix->values[IDX(i,j,width)], ((j == width - 1) ? "\n" : ";"));
+			fprintf(fs, DATATYPEFORMAT, matrix->values[IDX(i,j,width)]);
+			fprintf(fs, "%s", ((j == width - 1) ? "\n" : ";"));
 		}
 	}
 	fclose(fs);
 }
 
-template void matrix_read<double>(char *fileName, MATRIX<double> ** matrix);
-template void matrix_write<double>(char *fileName, MATRIX<double> * matrix);
+template void matrix_read<DATATYPE>(char *fileName, MATRIX<DATATYPE> ** matrix);
+template void matrix_write<DATATYPE>(char *fileName, MATRIX<DATATYPE> * matrix);

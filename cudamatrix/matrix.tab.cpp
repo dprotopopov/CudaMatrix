@@ -70,13 +70,13 @@
 
 void yyerror(char *);
 int yylex(void);
-MATRIX<double> * sym[26];
+MATRIX<DATATYPE> * sym[26];
 MEMORY source_memory = TEXTURE;
 MEMORY dest_memory = GLOBAL;
 MEMORY cache_memory = SHARED;
 dim3 blocks = dim3(1,1,1);
 dim3 threads = dim3(1,1,1);
-double tolerance = 0.0;
+DATATYPE tolerance = 0;
 
 
 /* Line 371 of yacc.c  */
@@ -1432,10 +1432,10 @@ yyreduce:
 			if ((yyvsp[(3) - (4)])==(yyvsp[(4) - (4)])) { yyerror("L-value must be different from R-value"); exit(-1); }
 			int height = sym[(yyvsp[(4) - (4)])]->height;
 			int width = sym[(yyvsp[(4) - (4)])]->width;
-			sym[(yyvsp[(2) - (4)])] = (MATRIX<double> *)malloc(sizeof(MATRIX<double>)+(width * height * sizeof(double)));
+			sym[(yyvsp[(2) - (4)])] = (MATRIX<DATATYPE> *)malloc(sizeof(MATRIX<DATATYPE>)+(width * height * sizeof(DATATYPE)));
 			sym[(yyvsp[(2) - (4)])]->height = height;
 			sym[(yyvsp[(2) - (4)])]->width = width;
-			memcpy(sym[(yyvsp[(4) - (4)])]->values,sym[(yyvsp[(2) - (4)])]->values,height*width*sizeof(double)); 
+			memcpy(sym[(yyvsp[(4) - (4)])]->values,sym[(yyvsp[(2) - (4)])]->values,height*width*sizeof(DATATYPE)); 
 		}
     break;
 
@@ -1446,10 +1446,10 @@ yyreduce:
 			if ((yyvsp[(2) - (5)])==(yyvsp[(5) - (5)])) { yyerror("L-value must be different from R-value"); exit(-1); }
 			int height = sym[(yyvsp[(5) - (5)])]->height;
 			int width = sym[(yyvsp[(5) - (5)])]->width;
-			sym[(yyvsp[(2) - (5)])] = (MATRIX<double> *)malloc(sizeof(MATRIX<double>)+(width * height * sizeof(double)));
+			sym[(yyvsp[(2) - (5)])] = (MATRIX<DATATYPE> *)malloc(sizeof(MATRIX<DATATYPE>)+(width * height * sizeof(DATATYPE)));
 			sym[(yyvsp[(2) - (5)])]->height = height;
 			sym[(yyvsp[(2) - (5)])]->width = width;
-			__host__matrix_plus<double>(blocks,threads,sym[(yyvsp[(5) - (5)])],sym[(yyvsp[(2) - (5)])],source_memory,dest_memory,cache_memory); 
+			__host__matrix_plus<DATATYPE>(blocks,threads,sym[(yyvsp[(5) - (5)])],sym[(yyvsp[(2) - (5)])],source_memory,dest_memory,cache_memory); 
 		}
     break;
 
@@ -1460,10 +1460,10 @@ yyreduce:
 			if ((yyvsp[(2) - (5)])==(yyvsp[(5) - (5)])) { yyerror("L-value must be different from R-value"); exit(-1); }
 			int height = sym[(yyvsp[(5) - (5)])]->height;
 			int width = sym[(yyvsp[(5) - (5)])]->width;
-			sym[(yyvsp[(2) - (5)])] = (MATRIX<double> *)malloc(sizeof(MATRIX<double>)+(width * height * sizeof(double)));
+			sym[(yyvsp[(2) - (5)])] = (MATRIX<DATATYPE> *)malloc(sizeof(MATRIX<DATATYPE>)+(width * height * sizeof(DATATYPE)));
 			sym[(yyvsp[(2) - (5)])]->height = height;
 			sym[(yyvsp[(2) - (5)])]->width = width;
-			__host__matrix_minus<double>(blocks,threads,sym[(yyvsp[(5) - (5)])],sym[(yyvsp[(2) - (5)])],source_memory,dest_memory,cache_memory); 
+			__host__matrix_minus<DATATYPE>(blocks,threads,sym[(yyvsp[(5) - (5)])],sym[(yyvsp[(2) - (5)])],source_memory,dest_memory,cache_memory); 
 		}
     break;
 
@@ -1474,10 +1474,10 @@ yyreduce:
 			if ((yyvsp[(2) - (5)])==(yyvsp[(5) - (5)])) { yyerror("L-value must be different from R-value"); exit(-1); }
 			int height = sym[(yyvsp[(5) - (5)])]->height;
 			int width = sym[(yyvsp[(5) - (5)])]->width;
-			sym[(yyvsp[(2) - (5)])] = (MATRIX<double> *)malloc(sizeof(MATRIX<double>)+(width * height * sizeof(double)));
+			sym[(yyvsp[(2) - (5)])] = (MATRIX<DATATYPE> *)malloc(sizeof(MATRIX<DATATYPE>)+(width * height * sizeof(DATATYPE)));
 			sym[(yyvsp[(2) - (5)])]->height = height;
 			sym[(yyvsp[(2) - (5)])]->width = width;
-			__host__matrix_rot<double>(blocks,threads,sym[(yyvsp[(5) - (5)])],sym[(yyvsp[(2) - (5)])],source_memory,dest_memory,cache_memory); 
+			__host__matrix_rot<DATATYPE>(blocks,threads,sym[(yyvsp[(5) - (5)])],sym[(yyvsp[(2) - (5)])],source_memory,dest_memory,cache_memory); 
 		}
     break;
 
@@ -1488,10 +1488,10 @@ yyreduce:
 			if ((yyvsp[(2) - (5)])==(yyvsp[(5) - (5)])) { yyerror("L-value must be different from R-value"); exit(-1); }
 			int height = sym[(yyvsp[(5) - (5)])]->height;
 			int width = sym[(yyvsp[(5) - (5)])]->width;
-			sym[(yyvsp[(2) - (5)])] = (MATRIX<double> *)malloc(sizeof(MATRIX<double>)+(width * height * sizeof(double)));
+			sym[(yyvsp[(2) - (5)])] = (MATRIX<DATATYPE> *)malloc(sizeof(MATRIX<DATATYPE>)+(width * height * sizeof(DATATYPE)));
 			sym[(yyvsp[(2) - (5)])]->height = height;
 			sym[(yyvsp[(2) - (5)])]->width = width;
-			__host__matrix_inv<double>(blocks,threads,sym[(yyvsp[(5) - (5)])],sym[(yyvsp[(2) - (5)])],tolerance,source_memory,dest_memory,cache_memory); 
+			__host__matrix_inv<DATATYPE>(blocks,threads,sym[(yyvsp[(5) - (5)])],sym[(yyvsp[(2) - (5)])],tolerance,source_memory,dest_memory,cache_memory); 
 		}
     break;
 
@@ -1502,10 +1502,10 @@ yyreduce:
 			if ((yyvsp[(2) - (7)])==(yyvsp[(7) - (7)])) { yyerror("L-value must be different from R-value"); exit(-1); }
 			int height = sym[(yyvsp[(7) - (7)])]->height;
 			int width = sym[(yyvsp[(7) - (7)])]->width;
-			sym[(yyvsp[(2) - (7)])] = (MATRIX<double> *)malloc(sizeof(MATRIX<double>)+(width * height * sizeof(double)));
+			sym[(yyvsp[(2) - (7)])] = (MATRIX<DATATYPE> *)malloc(sizeof(MATRIX<DATATYPE>)+(width * height * sizeof(DATATYPE)));
 			sym[(yyvsp[(2) - (7)])]->height = height;
 			sym[(yyvsp[(2) - (7)])]->width = width;
-			__host__matrix_gaussjordanstep<double>(blocks,threads,sym[(yyvsp[(7) - (7)])],sym[(yyvsp[(1) - (7)])],(yyvsp[(5) - (7)]),(yyvsp[(6) - (7)]),source_memory,dest_memory,cache_memory); 
+			__host__matrix_gaussjordanstep<DATATYPE>(blocks,threads,sym[(yyvsp[(7) - (7)])],sym[(yyvsp[(1) - (7)])],(yyvsp[(5) - (7)]),(yyvsp[(6) - (7)]),source_memory,dest_memory,cache_memory); 
 		}
     break;
 
@@ -1516,10 +1516,10 @@ yyreduce:
 			if ((yyvsp[(2) - (5)])==(yyvsp[(5) - (5)])) { yyerror("L-value must be different from R-value"); exit(-1); }
 			int height = sym[(yyvsp[(5) - (5)])]->height;
 			int width = sym[(yyvsp[(5) - (5)])]->width;
-			sym[(yyvsp[(2) - (5)])] = (MATRIX<double> *)malloc(sizeof(MATRIX<double>)+(width * height * sizeof(double)));
+			sym[(yyvsp[(2) - (5)])] = (MATRIX<DATATYPE> *)malloc(sizeof(MATRIX<DATATYPE>)+(width * height * sizeof(DATATYPE)));
 			sym[(yyvsp[(2) - (5)])]->height = height;
 			sym[(yyvsp[(2) - (5)])]->width = width;
-			__host__matrix_gaussjordan<double>(blocks,threads,sym[(yyvsp[(5) - (5)])],sym[(yyvsp[(2) - (5)])],tolerance,source_memory,dest_memory,cache_memory); 
+			__host__matrix_gaussjordan<DATATYPE>(blocks,threads,sym[(yyvsp[(5) - (5)])],sym[(yyvsp[(2) - (5)])],tolerance,source_memory,dest_memory,cache_memory); 
 		}
     break;
 
@@ -1533,10 +1533,10 @@ yyreduce:
 			if (sym[(yyvsp[(4) - (6)])]->width!=sym[(yyvsp[(6) - (6)])]->width) { yyerror("First argument width must be equal second argument width"); exit(-1); }
 			int height = sym[(yyvsp[(4) - (6)])]->height;
 			int width = sym[(yyvsp[(6) - (6)])]->width;
-			sym[(yyvsp[(2) - (6)])] = (MATRIX<double> *)malloc(sizeof(MATRIX<double>)+(width * height * sizeof(double)));
+			sym[(yyvsp[(2) - (6)])] = (MATRIX<DATATYPE> *)malloc(sizeof(MATRIX<DATATYPE>)+(width * height * sizeof(DATATYPE)));
 			sym[(yyvsp[(2) - (6)])]->height = height;
 			sym[(yyvsp[(2) - (6)])]->width = width;
-			__host__matrix_add<double>(blocks,threads,sym[(yyvsp[(4) - (6)])],sym[(yyvsp[(6) - (6)])],sym[(yyvsp[(2) - (6)])],source_memory,dest_memory,cache_memory); 
+			__host__matrix_add<DATATYPE>(blocks,threads,sym[(yyvsp[(4) - (6)])],sym[(yyvsp[(6) - (6)])],sym[(yyvsp[(2) - (6)])],source_memory,dest_memory,cache_memory); 
 		}
     break;
 
@@ -1550,10 +1550,10 @@ yyreduce:
 			if (sym[(yyvsp[(4) - (6)])]->width!=sym[(yyvsp[(6) - (6)])]->width) { yyerror("First argument width must be equal second argument width"); exit(-1); }
 			int height = sym[(yyvsp[(4) - (6)])]->height;
 			int width = sym[(yyvsp[(6) - (6)])]->width;
-			sym[(yyvsp[(2) - (6)])] = (MATRIX<double> *)malloc(sizeof(MATRIX<double>)+(width * height * sizeof(double)));
+			sym[(yyvsp[(2) - (6)])] = (MATRIX<DATATYPE> *)malloc(sizeof(MATRIX<DATATYPE>)+(width * height * sizeof(DATATYPE)));
 			sym[(yyvsp[(2) - (6)])]->height = height;
 			sym[(yyvsp[(2) - (6)])]->width = width;
-			__host__matrix_sub<double>(blocks,threads,sym[(yyvsp[(4) - (6)])],sym[(yyvsp[(6) - (6)])],sym[(yyvsp[(2) - (6)])],source_memory,dest_memory,cache_memory); 
+			__host__matrix_sub<DATATYPE>(blocks,threads,sym[(yyvsp[(4) - (6)])],sym[(yyvsp[(6) - (6)])],sym[(yyvsp[(2) - (6)])],source_memory,dest_memory,cache_memory); 
 		}
     break;
 
@@ -1567,23 +1567,23 @@ yyreduce:
 			int height = sym[(yyvsp[(4) - (6)])]->height;
 			int width_height = sym[(yyvsp[(4) - (6)])]->width;
 			int width = sym[(yyvsp[(6) - (6)])]->width;
-			sym[(yyvsp[(2) - (6)])] = (MATRIX<double> *)malloc(sizeof(MATRIX<double>)+(width * height * sizeof(double)));
+			sym[(yyvsp[(2) - (6)])] = (MATRIX<DATATYPE> *)malloc(sizeof(MATRIX<DATATYPE>)+(width * height * sizeof(DATATYPE)));
 			sym[(yyvsp[(2) - (6)])]->height = height;
 			sym[(yyvsp[(2) - (6)])]->width = width;
-			__host__matrix_mul<double>(blocks,threads,sym[(yyvsp[(4) - (6)])],sym[(yyvsp[(6) - (6)])],sym[(yyvsp[(2) - (6)])],source_memory,dest_memory,cache_memory); 
+			__host__matrix_mul<DATATYPE>(blocks,threads,sym[(yyvsp[(4) - (6)])],sym[(yyvsp[(6) - (6)])],sym[(yyvsp[(2) - (6)])],source_memory,dest_memory,cache_memory); 
 		}
     break;
 
   case 15:
 /* Line 1792 of yacc.c  */
 #line 132 "matrix.y"
-    { matrix_read<double>(string_stack[(yyvsp[(3) - (3)])], &sym[(yyvsp[(2) - (3)])]); }
+    { matrix_read<DATATYPE>(string_stack[(yyvsp[(3) - (3)])], &sym[(yyvsp[(2) - (3)])]); }
     break;
 
   case 16:
 /* Line 1792 of yacc.c  */
 #line 133 "matrix.y"
-    { matrix_write<double>(string_stack[(yyvsp[(3) - (3)])], sym[(yyvsp[(2) - (3)])]); }
+    { matrix_write<DATATYPE>(string_stack[(yyvsp[(3) - (3)])], sym[(yyvsp[(2) - (3)])]); }
     break;
 
   case 17:
@@ -1650,7 +1650,7 @@ yyreduce:
 /* Line 1792 of yacc.c  */
 #line 144 "matrix.y"
     { 
-			sym[(yyvsp[(2) - (4)])] = (MATRIX<double> *)malloc(sizeof(MATRIX<double>)+((yyvsp[(3) - (4)]) * (yyvsp[(4) - (4)]) * sizeof(double)));
+			sym[(yyvsp[(2) - (4)])] = (MATRIX<DATATYPE> *)malloc(sizeof(MATRIX<DATATYPE>)+((yyvsp[(3) - (4)]) * (yyvsp[(4) - (4)]) * sizeof(DATATYPE)));
 			sym[(yyvsp[(2) - (4)])]->height = (yyvsp[(3) - (4)]);
 			sym[(yyvsp[(2) - (4)])]->width = (yyvsp[(4) - (4)]);
 		}

@@ -50,7 +50,7 @@ tolerance { return TOLERANCE_KEYWORD; }
 	return VARIABLE;
 }
 [0-9]+\.[0-9]* {
-	double_stack[double_stack_size++] = atof(yytext);
+	double_stack[double_stack_size++] = fn_ATODATATYPE(yytext);
 	yylval = double_stack_size;
 	return DOUBLE;
 }

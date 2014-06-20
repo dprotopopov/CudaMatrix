@@ -57,6 +57,12 @@ enum MEMORY {
 	TEXTURE
 };
 
+#define DATATYPE short
+#define STORAGETYPE short
+#define TEXTURESTORAGETYPE uint4
+#define fn_ATODATATYPE(s)	atoi(s)
+#define DATATYPEFORMAT	"%hd"	
+
 template<class T> __host__ void __cdecl __host__matrix_plus(dim3 blocks, dim3 threads, MATRIX<T> *a, MATRIX<T> *b, MEMORY src, MEMORY dest, MEMORY cache);
 template<class T> __host__ void __cdecl __host__matrix_minus(dim3 blocks, dim3 threads, MATRIX<T> *a, MATRIX<T> *b,MEMORY src, MEMORY dest, MEMORY cache);
 template<class T> __host__ void __cdecl __host__matrix_rot(dim3 blocks, dim3 threads, MATRIX<T> *a, MATRIX<T> *b, MEMORY src, MEMORY dest, MEMORY cache);
@@ -72,6 +78,10 @@ template<class T> void __cdecl matrix_read(char *fileName, MATRIX<T> ** matrix);
 template<class T> void __cdecl matrix_write(char *fileName, MATRIX<T> * matrix);
 
 template<class T> union storage {
-    uint4 i;
+    STORAGETYPE i;
+    T t;
+};
+template<class T> union texturestorage {
+    TEXTURESTORAGETYPE i;
     T t;
 };
