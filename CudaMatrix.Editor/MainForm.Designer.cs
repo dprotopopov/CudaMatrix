@@ -34,6 +34,7 @@
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.executeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.randomToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.newMpiEditorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.menuStrip1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -45,7 +46,8 @@
             this.randomToolStripMenuItem});
             this.menuStrip1.Location = new System.Drawing.Point(0, 0);
             this.menuStrip1.Name = "menuStrip1";
-            this.menuStrip1.Size = new System.Drawing.Size(871, 28);
+            this.menuStrip1.Padding = new System.Windows.Forms.Padding(7, 2, 0, 2);
+            this.menuStrip1.Size = new System.Drawing.Size(980, 33);
             this.menuStrip1.TabIndex = 1;
             this.menuStrip1.Text = "menuStrip1";
             // 
@@ -53,47 +55,56 @@
             // 
             this.fileToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.newToolStripMenuItem,
+            this.newMpiEditorToolStripMenuItem,
             this.exitToolStripMenuItem});
             this.fileToolStripMenuItem.Name = "fileToolStripMenuItem";
-            this.fileToolStripMenuItem.Size = new System.Drawing.Size(44, 24);
+            this.fileToolStripMenuItem.Size = new System.Drawing.Size(50, 29);
             this.fileToolStripMenuItem.Text = "File";
             // 
             // newToolStripMenuItem
             // 
             this.newToolStripMenuItem.Name = "newToolStripMenuItem";
-            this.newToolStripMenuItem.Size = new System.Drawing.Size(108, 24);
-            this.newToolStripMenuItem.Text = "New";
-            this.newToolStripMenuItem.Click += new System.EventHandler(this.newToolStripMenuItem_Click);
+            this.newToolStripMenuItem.Size = new System.Drawing.Size(217, 30);
+            this.newToolStripMenuItem.Text = "New Cuda Editor";
+            this.newToolStripMenuItem.Click += new System.EventHandler(this.newCudaEditorForm_Click);
             // 
             // exitToolStripMenuItem
             // 
             this.exitToolStripMenuItem.Name = "exitToolStripMenuItem";
-            this.exitToolStripMenuItem.Size = new System.Drawing.Size(108, 24);
+            this.exitToolStripMenuItem.Size = new System.Drawing.Size(217, 30);
             this.exitToolStripMenuItem.Text = "Exit";
             this.exitToolStripMenuItem.Click += new System.EventHandler(this.exitToolStripMenuItem_Click);
             // 
             // executeToolStripMenuItem
             // 
             this.executeToolStripMenuItem.Name = "executeToolStripMenuItem";
-            this.executeToolStripMenuItem.Size = new System.Drawing.Size(72, 24);
+            this.executeToolStripMenuItem.Size = new System.Drawing.Size(83, 29);
             this.executeToolStripMenuItem.Text = "Execute";
             this.executeToolStripMenuItem.Click += new System.EventHandler(this.executeToolStripMenuItem_Click);
             // 
             // randomToolStripMenuItem
             // 
             this.randomToolStripMenuItem.Name = "randomToolStripMenuItem";
-            this.randomToolStripMenuItem.Size = new System.Drawing.Size(77, 24);
+            this.randomToolStripMenuItem.Size = new System.Drawing.Size(92, 29);
             this.randomToolStripMenuItem.Text = "Random";
             this.randomToolStripMenuItem.Click += new System.EventHandler(this.randomToolStripMenuItem_Click);
             // 
+            // newMpiEditorToolStripMenuItem
+            // 
+            this.newMpiEditorToolStripMenuItem.Name = "newMpiEditorToolStripMenuItem";
+            this.newMpiEditorToolStripMenuItem.Size = new System.Drawing.Size(217, 30);
+            this.newMpiEditorToolStripMenuItem.Text = "New Mpi Editor";
+            this.newMpiEditorToolStripMenuItem.Click += new System.EventHandler(this.newMpiEditorForm_Click);
+            // 
             // MainForm
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(871, 614);
+            this.ClientSize = new System.Drawing.Size(980, 768);
             this.Controls.Add(this.menuStrip1);
             this.IsMdiContainer = true;
             this.MainMenuStrip = this.menuStrip1;
+            this.Margin = new System.Windows.Forms.Padding(3, 4, 3, 4);
             this.Name = "MainForm";
             this.Text = "MainForm";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
@@ -112,6 +123,7 @@
         private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem executeToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem randomToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem newMpiEditorToolStripMenuItem;
     }
 }
 

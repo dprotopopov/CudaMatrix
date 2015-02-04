@@ -16,9 +16,9 @@ namespace CudaMatrix.Editor
             Close();
         }
 
-        private void newToolStripMenuItem_Click(object sender, EventArgs e)
+        private void newCudaEditorForm_Click(object sender, EventArgs e)
         {
-            var child = new MatrixForm
+            var child = new CudaEditorForm
             {
                 MdiParent = this
             };
@@ -27,17 +27,26 @@ namespace CudaMatrix.Editor
 
         private void executeToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var child = ActiveMdiChild as MatrixForm;
+            var child = ActiveMdiChild as EditorForm;
             if (child == null) return;
             child.Execute();
         }
 
         private void randomToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            var child = ActiveMdiChild as MatrixForm;
+            var child = ActiveMdiChild as EditorForm;
             if (child == null) return;
             if (RandomDialog.ShowDialog() != DialogResult.OK) return;
             child.Random(RandomDialog.Minimum,RandomDialog.Maximum);
+        }
+
+        private void newMpiEditorForm_Click(object sender, EventArgs e)
+        {
+            var child = new MpiEditorForm
+            {
+                MdiParent = this
+            };
+            child.Show();
         }
     }
 }

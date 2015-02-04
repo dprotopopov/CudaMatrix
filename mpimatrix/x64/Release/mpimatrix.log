@@ -1,0 +1,15 @@
+﻿Построение начато 05.02.2015 0:28:45.
+     1>Проект "D:\Projects\CudaMatrix\mpimatrix\mpimatrix.vcxproj" в узле 2 (целевые объекты Rebuild).
+     1>ClCompile:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W3 /WX- /sdl /O2 /Oi /GL /D _MBCS /Gm- /EHsc /MD /GS /Gy /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Release\\" /Fd"x64\Release\vc110.pdb" /Gd /TP /errorReport:prompt mpimatrix.cpp
+         mpimatrix.cpp
+       Link:
+         C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\x86_amd64\link.exe /ERRORREPORT:PROMPT /OUT:"D:\Projects\CudaMatrix\x64\Release\mpimatrix.exe" /NOLOGO /LIBPATH:"C:\Program Files\MPICH2\lib" mpi.lib kernel32.lib user32.lib gdi32.lib winspool.lib comdlg32.lib advapi32.lib shell32.lib ole32.lib oleaut32.lib uuid.lib odbc32.lib odbccp32.lib /MANIFEST /MANIFESTUAC:"level='asInvoker' uiAccess='false'" /manifest:embed /DEBUG /PDB:"D:\Projects\CudaMatrix\x64\Release\mpimatrix.pdb" /OPT:REF /OPT:ICF /LTCG /TLBID:1 /DYNAMICBASE /NXCOMPAT /IMPLIB:"D:\Projects\CudaMatrix\x64\Release\mpimatrix.lib" /MACHINE:X64 x64\Release\mpimatrix.obj
+         Создание кода
+         Создание кода завершено
+         mpimatrix.vcxproj -> D:\Projects\CudaMatrix\x64\Release\mpimatrix.exe
+     1>Построение проекта "D:\Projects\CudaMatrix\mpimatrix\mpimatrix.vcxproj" завершено (целевые объекты Rebuild).
+
+Построение успешно завершено.
+
+Затраченное время: 00:00:00.92

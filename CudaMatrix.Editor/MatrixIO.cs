@@ -97,7 +97,8 @@ namespace CudaMatrix.Editor
                 HeaderText = i.ToString(CultureInfo.InvariantCulture),
                 Name = "Column" + i,
                 Width = 60,
-                SortMode = DataGridViewColumnSortMode.NotSortable
+                SortMode = DataGridViewColumnSortMode.NotSortable,
+                ValueType = typeof (string)
             };
             //make a Style template to be used in the grid
             using (var acell = new DataGridViewTextBoxCell
@@ -136,7 +137,6 @@ namespace CudaMatrix.Editor
             {
                 int rows = value.GetLength(0);
                 int cols = value.GetLength(1);
-                _mData = new string[rows, cols];
                 _mData = value;
                 ResizeOurself(rows, cols);
                 FillTextBoxes();
