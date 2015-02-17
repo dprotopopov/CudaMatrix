@@ -1,0 +1,5 @@
+D:\Projects\CudaMatrix\CudaMatrix.UnitTest\bin\x64\Debug\CudaMatrix.UnitTest.dll
+D:\Projects\CudaMatrix\CudaMatrix.UnitTest\bin\x64\Debug\CudaMatrix.UnitTest.pdb
+D:\Projects\CudaMatrix\CudaMatrix.UnitTest\obj\x64\Debug\CudaMatrix.UnitTest.csprojResolveAssemblyReference.cache
+D:\Projects\CudaMatrix\CudaMatrix.UnitTest\obj\x64\Debug\CudaMatrix.UnitTest.dll
+D:\Projects\CudaMatrix\CudaMatrix.UnitTest\obj\x64\Debug\CudaMatrix.UnitTest.pdb

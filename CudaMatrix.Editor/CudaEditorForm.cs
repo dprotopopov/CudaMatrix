@@ -223,14 +223,13 @@ namespace CudaMatrix.Editor
 
         public static async Task<string[,]> ReadCsvMatrix(string fileName)
         {
-            var regex = new Regex(@"\s*(?<data>[-]?\d*(\.\d*)?)\s*([;]|\Z)");
             var lists = new List<List<string>>();
             using (var reader = new StreamReader(File.Open(fileName, FileMode.Open)))
             {
                 for (string line = await reader.ReadLineAsync();;
                     line = await reader.ReadLineAsync())
                 {
-                    lists.Add((from Match match in regex.Matches(line) select match.Groups["data"].Value).ToList());
+                    lists.Add(line.Split(';').ToList());
                     if (reader.EndOfStream) break;
                 }
                 reader.Close();
