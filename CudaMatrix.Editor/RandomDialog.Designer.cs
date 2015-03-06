@@ -1,4 +1,4 @@
-﻿namespace CudaMatrix.Editor
+﻿namespace Matrix.Editor
 {
     partial class RandomDialog
     {

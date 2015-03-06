@@ -81,7 +81,8 @@ void mpi_matrix_nil(
 
 	T nil = (T)0;
 	T *buffer = (T*)malloc(sizeof(T)*bufferSize);
-	for(int j=0;j<bufferSize;j++) buffer[j]=nil;
+
+	for(int i=0;i<bufferSize;i++) buffer[i]=nil;
 
 	for(int i=0;i<length;i+=bufferSize){
 		int size = min(bufferSize, length-i);

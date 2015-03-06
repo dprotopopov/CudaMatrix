@@ -3,7 +3,7 @@ using System.Drawing;
 using System.Globalization;
 using System.Windows.Forms;
 
-namespace CudaMatrix.Editor
+namespace Matrix.Editor
 {
     public class MatrixIO : DataGridView
     {

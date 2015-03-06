@@ -12,28 +12,12 @@
 * Используются функции MPI_File_read_ordered и MPI_File_write_ordered
 */
 #include <mpi.h>
-#include <stdlib.h>     /* qsort */
 #include <assert.h>
 #include "mpimatrixfile.h"
 #include "mpimatrixgaussjordan.h"
 
 #ifndef __MPIMATRIXINV_H
 #define __MPIMATRIXINV_H
-
-#ifndef INDEX_INDEX
-#define INDEX_INDEX
-
-typedef struct {
-	int index1;
-	int index2;
-} index_index;
-
-int compare_index_index (const void * a, const void * b)
-{
-  return ( ((index_index*)a)->index1 - ((index_index*)b)->index1 );
-}
-
-#endif // INDEX_INDEX
 
 template <typename T>
 void mpi_matrix_inv(
@@ -106,7 +90,7 @@ void mpi_matrix_inv(
 
 	T nil = (T)0;
 	T one = (T)1;
-	for(int j=0;j<bufferSize;j++) buffer2[j]=nil;
+	for(int i=0;i<bufferSize;i++) buffer2[i]=nil;
 	
 	for(int i=0;i<length;i++){
 		buffer2[(start+i)*length+i]=one;
@@ -153,13 +137,10 @@ void mpi_matrix_inv(
 	counter); // Счётчик количества операций
 
 	// Вычисление требуемой перестановки строк
-	index_index *ii = (index_index *)malloc(sizeof(index_index)*rank);
+	int *ii = (int *)malloc(sizeof(int)*rank);
 	for(int i=0;i<rank;i++){
-		ii[i].index1=totalIndex[i];
-		ii[i].index2=i;
+		ii[totalIndex[i]]=i;
 	}
-
-	qsort (ii, rank, sizeof(index_index), compare_index_index);
 
 	if(myrank==0) MPI_File_delete(outputFileName, MPI_INFO_NULL);
 	MPI_File_open(comm,outputFileName,MPI_MODE_WRONLY|MPI_MODE_SEQUENTIAL|MPI_MODE_CREATE,MPI_INFO_NULL, &file);
@@ -172,7 +153,7 @@ void mpi_matrix_inv(
 	// Порядок строк при сохранении определяется индексами первых ненулевых элементов
 	for(int i=0;i<rank;i++){
 		memset( &status, 0x00, sizeof(MPI_Status) );
-		MPI_File_write_ordered(file, &buffer2[ii[i].index2*length], length, dataType, &status);
+		MPI_File_write_ordered(file, &buffer2[ii[i]*length], length, dataType, &status);
 		MPI_Get_count( &status, MPI_INT, &count );
 		// assert(count==length);
 	}

@@ -1,9 +1,0 @@
-D:\Projects\CudaMatrix\CudaMatrix.Editor\bin\Debug\CudaMatrix.Editor.exe.config
-D:\Projects\CudaMatrix\CudaMatrix.Editor\bin\Debug\CudaMatrix.Editor.exe
-D:\Projects\CudaMatrix\CudaMatrix.Editor\bin\Debug\CudaMatrix.Editor.pdb
-D:\Projects\CudaMatrix\CudaMatrix.Editor\obj\Debug\CudaMatrix.Editor.MainForm.resources
-D:\Projects\CudaMatrix\CudaMatrix.Editor\obj\Debug\CudaMatrix.Editor.MatrixForm.resources
-D:\Projects\CudaMatrix\CudaMatrix.Editor\obj\Debug\CudaMatrix.Editor.Properties.Resources.resources
-D:\Projects\CudaMatrix\CudaMatrix.Editor\obj\Debug\CudaMatrix.Editor.csproj.GenerateResource.Cache
-D:\Projects\CudaMatrix\CudaMatrix.Editor\obj\Debug\CudaMatrix.Editor.exe
-D:\Projects\CudaMatrix\CudaMatrix.Editor\obj\Debug\CudaMatrix.Editor.pdb

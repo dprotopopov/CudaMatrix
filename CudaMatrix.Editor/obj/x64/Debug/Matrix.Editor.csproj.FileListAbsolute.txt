@@ -1,1 +1,3 @@
-D:\Projects\CudaMatrix\CudaMatrix.Editor\bin\x64\Debug\CudaMatrix.Editor.exe.config
+D:\Projects\CudaMatrix\CudaMatrix.Editor\bin\x64\Debug\Matrix.Editor.exe.config
+D:\Projects\CudaMatrix\CudaMatrix.Editor\x64\Debug\Matrix.Editor.exe.config
+D:\Projects\CudaMatrix\x64\Debug\Matrix.Editor.exe.config

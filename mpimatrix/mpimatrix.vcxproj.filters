@@ -45,10 +45,10 @@
     <ClInclude Include="mpimatrixinv.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="mpimatrixdet.h">
+    <ClInclude Include="mpimatrixmtv.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
-    <ClInclude Include="mpimatrixmtv.h">
+    <ClInclude Include="mpimatrixdet.h">
       <Filter>Заголовочные файлы</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,4 +1,4 @@
-﻿namespace CudaMatrix.Editor
+﻿namespace Matrix.Editor
 {
     partial class MpiEditorForm
     {
@@ -54,6 +54,8 @@
             this.tabPageC = new System.Windows.Forms.TabPage();
             this.groupBox1 = new System.Windows.Forms.GroupBox();
             this.textBoxLog = new System.Windows.Forms.TextBox();
+            this.label2 = new System.Windows.Forms.Label();
+            this.textBoxWorkingDir = new System.Windows.Forms.TextBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
             this.splitContainer1.Panel2.SuspendLayout();
@@ -133,6 +135,8 @@
             // 
             // groupBox3
             // 
+            this.groupBox3.Controls.Add(this.textBoxWorkingDir);
+            this.groupBox3.Controls.Add(this.label2);
             this.groupBox3.Controls.Add(this.label1);
             this.groupBox3.Controls.Add(this.numericUpDownNumberOfProcess);
             this.groupBox3.Location = new System.Drawing.Point(32, 374);
@@ -145,7 +149,7 @@
             // label1
             // 
             this.label1.AutoSize = true;
-            this.label1.Location = new System.Drawing.Point(40, 73);
+            this.label1.Location = new System.Drawing.Point(40, 105);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(147, 20);
             this.label1.TabIndex = 1;
@@ -153,7 +157,7 @@
             // 
             // numericUpDownNumberOfProcess
             // 
-            this.numericUpDownNumberOfProcess.Location = new System.Drawing.Point(197, 70);
+            this.numericUpDownNumberOfProcess.Location = new System.Drawing.Point(197, 102);
             this.numericUpDownNumberOfProcess.Maximum = new decimal(new int[] {
             1000,
             0,
@@ -452,6 +456,23 @@
             this.textBoxLog.Size = new System.Drawing.Size(1194, 109);
             this.textBoxLog.TabIndex = 0;
             // 
+            // label2
+            // 
+            this.label2.AutoSize = true;
+            this.label2.Location = new System.Drawing.Point(40, 58);
+            this.label2.Name = "label2";
+            this.label2.Size = new System.Drawing.Size(88, 20);
+            this.label2.TabIndex = 2;
+            this.label2.Text = "Working dir";
+            // 
+            // textBoxWorkingDir
+            // 
+            this.textBoxWorkingDir.Location = new System.Drawing.Point(197, 58);
+            this.textBoxWorkingDir.Name = "textBoxWorkingDir";
+            this.textBoxWorkingDir.Size = new System.Drawing.Size(120, 26);
+            this.textBoxWorkingDir.TabIndex = 3;
+            this.textBoxWorkingDir.Text = "T:\\";
+            // 
             // MpiEditorForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(9F, 20F);
@@ -520,5 +541,7 @@
         private System.Windows.Forms.GroupBox groupBox3;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.NumericUpDown numericUpDownNumberOfProcess;
+        private System.Windows.Forms.TextBox textBoxWorkingDir;
+        private System.Windows.Forms.Label label2;
     }
 }

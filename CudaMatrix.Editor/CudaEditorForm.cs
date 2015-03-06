@@ -5,11 +5,10 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
-using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace CudaMatrix.Editor
+namespace Matrix.Editor
 {
     public partial class CudaEditorForm : Form, EditorForm
     {
@@ -184,12 +183,70 @@ namespace CudaMatrix.Editor
             set { textBoxScript.Text = value; }
         }
 
+        public async void Execute()
+        {
+            string fileNameLog = "MATRIX.log";
+            string fileNameA = "MATRIX_A.csv";
+            string fileNameB = "MATRIX_B.csv";
+            string fileNameC = "MATRIX_C.csv";
+            string fileNameScript = "MATRIX.SCRIPT";
+            using (var writer = new StreamWriter(File.Open(fileNameScript, FileMode.Create)))
+            {
+                await writer.WriteAsync(Script);
+            }
+            WriteCsvMatrix(fileNameA, _dataGridViewMatrixA.TheData);
+            if (!OperatorRotate) WriteCsvMatrix(fileNameB, _dataGridViewMatrixB.TheData);
+
+            string command = string.Format("/C cudamatrix.exe < \"{0}\" > \"{1}\"", fileNameScript, fileNameLog);
+            Debug.WriteLine(command);
+
+            DateTime start = DateTime.Now;
+            Process process = Process.Start("cmd", command);
+
+            if (process == null) return;
+            process.WaitForExit();
+
+            DateTime end = DateTime.Now;
+
+            if (OperatorRotate) _dataGridViewMatrixB.TheData = await ReadCsvMatrix(fileNameB);
+            if (!OperatorRotate) _dataGridViewMatrixC.TheData = await ReadCsvMatrix(fileNameC);
+            using (var reader = new StreamReader(File.Open(fileNameLog, FileMode.Open)))
+            {
+                textBoxLog.Text = await reader.ReadToEndAsync();
+            }
+
+            var timeSpan = new TimeSpan(end.Ticks - start.Ticks);
+            MessageBox.Show(timeSpan.ToString());
+        }
+
+        public void Random(double minimum, double maximum)
+        {
+            var matrix = new string[HeightA, WidthA];
+            for (int i = 0; i < matrix.GetLength(0); i++)
+                for (int j = 0; j < matrix.GetLength(1); j++)
+                {
+                    matrix[i, j] =
+                        Convert.ToInt16(minimum + (maximum - minimum)*Rnd.NextDouble())
+                            .ToString(CultureInfo.InvariantCulture);
+                }
+            _dataGridViewMatrixA.TheData = matrix;
+            matrix = new string[HeightB, WidthB];
+            for (int i = 0; i < matrix.GetLength(0); i++)
+                for (int j = 0; j < matrix.GetLength(1); j++)
+                {
+                    matrix[i, j] =
+                        Convert.ToInt16(minimum + (maximum - minimum)*Rnd.NextDouble())
+                            .ToString(CultureInfo.InvariantCulture);
+                }
+            _dataGridViewMatrixB.TheData = matrix;
+        }
+
         private void ValueChanged(object sender, EventArgs e)
         {
             var sb = new StringBuilder();
             sb.AppendLine("show info");
-            sb.AppendLine("read a \"" + Path.GetTempPath() + "MATRIX_A.csv\"");
-            if (!OperatorRotate) sb.AppendLine("read b \"" + Path.GetTempPath() + "MATRIX_B.csv\"");
+            sb.AppendLine("read a \"MATRIX_A.csv\"");
+            if (!OperatorRotate) sb.AppendLine("read b \"MATRIX_B.csv\"");
             sb.AppendLine("use src " + SrcMemory);
             sb.AppendLine("use dest " + DestMemory);
             sb.AppendLine("use cache " + CacheMemory);
@@ -197,8 +254,8 @@ namespace CudaMatrix.Editor
             sb.AppendLine("set threads " + Threads1 + " " + Threads2);
             if (!OperatorRotate) sb.AppendLine("let c = a " + OpCode + " b");
             if (OperatorRotate) sb.AppendLine("let b = rot a");
-            if (!OperatorRotate) sb.AppendLine("write c \"" + Path.GetTempPath() + "MATRIX_C.csv\"");
-            if (OperatorRotate) sb.AppendLine("write b \"" + Path.GetTempPath() + "MATRIX_B.csv\"");
+            if (!OperatorRotate) sb.AppendLine("write c \"MATRIX_C.csv\"");
+            if (OperatorRotate) sb.AppendLine("write b \"MATRIX_B.csv\"");
             sb.AppendLine("free a");
             sb.AppendLine("free b");
             if (!OperatorRotate) sb.AppendLine("free c");
@@ -254,64 +311,6 @@ namespace CudaMatrix.Editor
                     }
                 writer.Close();
             }
-        }
-
-        public async void Execute()
-        {
-            string fileNameLog = Path.GetTempPath() + "MATRIX.log";
-            string fileNameA = Path.GetTempPath() + "MATRIX_A.csv";
-            string fileNameB = Path.GetTempPath() + "MATRIX_B.csv";
-            string fileNameC = Path.GetTempPath() + "MATRIX_C.csv";
-            string fileNameScript = Path.GetTempPath() + "MATRIX.SCRIPT";
-            using (var writer = new StreamWriter(File.Open(fileNameScript, FileMode.Create)))
-            {
-                await writer.WriteAsync(Script);
-            }
-            WriteCsvMatrix(fileNameA, _dataGridViewMatrixA.TheData);
-            if (!OperatorRotate) WriteCsvMatrix(fileNameB, _dataGridViewMatrixB.TheData);
-
-            string command = string.Format("/C cudamatrix.exe < \"{0}\" > \"{1}\"", fileNameScript, fileNameLog);
-            Debug.WriteLine(command);
-
-            DateTime start = DateTime.Now;
-            Process process = Process.Start("cmd", command);
-
-            if (process == null) return;
-            process.WaitForExit();
-
-            DateTime end = DateTime.Now;
-
-            if (OperatorRotate) _dataGridViewMatrixB.TheData = await ReadCsvMatrix(fileNameB);
-            if (!OperatorRotate) _dataGridViewMatrixC.TheData = await ReadCsvMatrix(fileNameC);
-            using (var reader = new StreamReader(File.Open(fileNameLog, FileMode.Open)))
-            {
-                textBoxLog.Text = await reader.ReadToEndAsync();
-            }
-
-            var timeSpan = new TimeSpan(end.Ticks - start.Ticks);
-            MessageBox.Show(timeSpan.ToString());
-        }
-
-        public void Random(double minimum, double maximum)
-        {
-            var matrix = new string[HeightA, WidthA];
-            for (int i = 0; i < matrix.GetLength(0); i++)
-                for (int j = 0; j < matrix.GetLength(1); j++)
-                {
-                    matrix[i, j] =
-                        Convert.ToInt16(minimum + (maximum - minimum)*Rnd.NextDouble())
-                            .ToString(CultureInfo.InvariantCulture);
-                }
-            _dataGridViewMatrixA.TheData = matrix;
-            matrix = new string[HeightB, WidthB];
-            for (int i = 0; i < matrix.GetLength(0); i++)
-                for (int j = 0; j < matrix.GetLength(1); j++)
-                {
-                    matrix[i, j] =
-                        Convert.ToInt16(minimum + (maximum - minimum)*Rnd.NextDouble())
-                            .ToString(CultureInfo.InvariantCulture);
-                }
-            _dataGridViewMatrixB.TheData = matrix;
         }
     }
 }

@@ -1,6 +1,4 @@
-using System.Windows.Forms;
-
-namespace CudaMatrix.Editor
+namespace Matrix.Editor
 {
     public interface EditorForm
     {

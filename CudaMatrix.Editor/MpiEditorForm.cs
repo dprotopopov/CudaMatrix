@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 
-namespace CudaMatrix.Editor
+namespace Matrix.Editor
 {
     public partial class MpiEditorForm : Form, EditorForm
     {
@@ -24,6 +24,11 @@ namespace CudaMatrix.Editor
             Nil,
             Rot,
         }
+
+        private const string FileNameLog = "MATRIX.log";
+        private const string FileNameA = "MATRIX_A.bin";
+        private const string FileNameB = "MATRIX_B.bin";
+        private const string FileNameC = "MATRIX_C.bin";
 
         private static readonly Random Rnd = new Random();
 
@@ -65,6 +70,8 @@ namespace CudaMatrix.Editor
             numericUpDownWidthA.ValueChanged += ValueChanged;
             numericUpDownWidthB.ValueChanged += ValueChanged;
             comboBoxOpCode.SelectedIndexChanged += ValueChanged;
+            textBoxWorkingDir.TextChanged += ValueChanged;
+            WorkingDir = Path.GetTempPath();
         }
 
         public int HeightA
@@ -109,6 +116,12 @@ namespace CudaMatrix.Editor
             get { return comboBoxOpCode.Text; }
         }
 
+        public string WorkingDir
+        {
+            get { return textBoxWorkingDir.Text; }
+            set { textBoxWorkingDir.Text = value; }
+        }
+
         public OpCodes OpCodeId
         {
             get
@@ -139,11 +152,95 @@ namespace CudaMatrix.Editor
             set { textBoxScript.Text = value; }
         }
 
+        public async void Execute()
+        {
+            switch (OpCodeId)
+            {
+                case OpCodes.Add:
+                case OpCodes.Sub:
+                case OpCodes.Mul:
+                case OpCodes.Mtv:
+                    WriteMpiMatrix(WorkingDir + FileNameA, _dataGridViewMatrixA.TheData);
+                    WriteMpiMatrix(WorkingDir + FileNameB, _dataGridViewMatrixB.TheData);
+                    break;
+                case OpCodes.Rot:
+                case OpCodes.Inv:
+                case OpCodes.Mov:
+                case OpCodes.Det:
+                    WriteMpiMatrix(WorkingDir + FileNameA, _dataGridViewMatrixA.TheData);
+                    break;
+                case OpCodes.One:
+                case OpCodes.Nil:
+                    break;
+            }
+            string command = string.Format("/C mpiexec.exe -n {0} -wdir {1} mpimatrix2.exe {2} > {3}",
+                NumberOfProcess,
+                WorkingDir,
+                Script,
+                FileNameLog);
+            Debug.WriteLine(command);
+
+            DateTime start = DateTime.Now;
+            Process process = Process.Start("cmd", command);
+            //MessageBox.Show(command);
+            if (process == null) return;
+            process.WaitForExit();
+
+            DateTime end = DateTime.Now;
+
+            switch (OpCodeId)
+            {
+                case OpCodes.Add:
+                case OpCodes.Sub:
+                case OpCodes.Mul:
+                case OpCodes.Mtv:
+                    _dataGridViewMatrixC.TheData = ReadMpiMatrix(WorkingDir + FileNameC);
+                    break;
+                case OpCodes.Rot:
+                case OpCodes.Inv:
+                case OpCodes.Mov:
+                case OpCodes.Det:
+                    _dataGridViewMatrixB.TheData = ReadMpiMatrix(WorkingDir + FileNameB);
+                    break;
+                case OpCodes.One:
+                case OpCodes.Nil:
+                    _dataGridViewMatrixA.TheData = ReadMpiMatrix(WorkingDir + FileNameA);
+                    break;
+            }
+
+            using (var reader = new StreamReader(File.Open(FileNameLog, FileMode.Open)))
+            {
+                textBoxLog.Text = await reader.ReadToEndAsync();
+            }
+
+            var timeSpan = new TimeSpan(end.Ticks - start.Ticks);
+            MessageBox.Show(timeSpan.ToString());
+        }
+
+        public void Random(double minimum, double maximum)
+        {
+            var matrix = new string[HeightA, WidthA];
+            for (int i = 0; i < matrix.GetLength(0); i++)
+                for (int j = 0; j < matrix.GetLength(1); j++)
+                {
+                    matrix[i, j] =
+                        Convert.ToInt16(minimum + (maximum - minimum)*Rnd.NextDouble())
+                            .ToString(CultureInfo.InvariantCulture);
+                }
+            _dataGridViewMatrixA.TheData = matrix;
+            matrix = new string[HeightB, WidthB];
+            for (int i = 0; i < matrix.GetLength(0); i++)
+                for (int j = 0; j < matrix.GetLength(1); j++)
+                {
+                    matrix[i, j] =
+                        Convert.ToInt16(minimum + (maximum - minimum)*Rnd.NextDouble())
+                            .ToString(CultureInfo.InvariantCulture);
+                }
+            _dataGridViewMatrixB.TheData = matrix;
+        }
+
         private void ValueChanged(object sender, EventArgs e)
         {
-            string fileNameA = Path.GetTempPath() + "MATRIX_A.bin";
-            string fileNameB = Path.GetTempPath() + "MATRIX_B.bin";
-            string fileNameC = Path.GetTempPath() + "MATRIX_C.bin";
             var sb = new StringBuilder();
             sb.Append(" " + OpCode);
             switch (OpCodeId)
@@ -152,25 +249,25 @@ namespace CudaMatrix.Editor
                 case OpCodes.Sub:
                 case OpCodes.Mul:
                 case OpCodes.Mtv:
-                    sb.Append(" \"" + fileNameA + "\"");
-                    sb.Append(" \"" + fileNameB + "\"");
-                    sb.Append(" \"" + fileNameC + "\"");
+                    sb.Append(" \"" + WorkingDir + FileNameA + "\"");
+                    sb.Append(" \"" + WorkingDir + FileNameB + "\"");
+                    sb.Append(" \"" + WorkingDir + FileNameC + "\"");
                     break;
                 case OpCodes.Rot:
                 case OpCodes.Inv:
                 case OpCodes.Mov:
                 case OpCodes.Det:
-                    sb.Append(" \"" + fileNameA + "\"");
-                    sb.Append(" \"" + fileNameB + "\"");
+                    sb.Append(" \"" + WorkingDir + FileNameA + "\"");
+                    sb.Append(" \"" + WorkingDir + FileNameB + "\"");
                     break;
                 case OpCodes.One:
                     sb.Append(" " + HeightA);
-                    sb.Append(" \"" + fileNameA + "\"");
+                    sb.Append(" \"" + WorkingDir + FileNameA + "\"");
                     break;
                 case OpCodes.Nil:
                     sb.Append(" " + HeightA);
                     sb.Append(" " + WidthA);
-                    sb.Append(" \"" + fileNameA + "\"");
+                    sb.Append(" \"" + WorkingDir + FileNameA + "\"");
                     break;
             }
 
@@ -381,7 +478,7 @@ namespace CudaMatrix.Editor
                 IntPtr ptr = Marshal.AllocHGlobal(size);
                 Marshal.Copy(arr, 0, ptr, size);
 
-                var header = (MpiMatrixHeader)Marshal.PtrToStructure(ptr, typeof(MpiMatrixHeader));
+                var header = (MpiMatrixHeader) Marshal.PtrToStructure(ptr, typeof (MpiMatrixHeader));
                 Marshal.FreeHGlobal(ptr);
 
                 var matrix = new string[header.height, header.width];
@@ -418,7 +515,7 @@ namespace CudaMatrix.Editor
                 Marshal.FreeHGlobal(ptr);
 
                 writer.Write(arr);
-                NumberFormatInfo provider = new NumberFormatInfo();
+                var provider = new NumberFormatInfo();
                 provider.NumberDecimalSeparator = ".";
                 for (int i = 0; i < matrix.GetLength(0); i++)
                     for (int j = 0; j < matrix.GetLength(1); j++)
@@ -428,97 +525,6 @@ namespace CudaMatrix.Editor
                     }
                 writer.Close();
             }
-        }
-
-        public async void Execute()
-        {
-            string fileNameLog = Path.GetTempPath() + "MATRIX.log";
-            string fileNameA = Path.GetTempPath() + "MATRIX_A.bin";
-            string fileNameB = Path.GetTempPath() + "MATRIX_B.bin";
-            string fileNameC = Path.GetTempPath() + "MATRIX_C.bin";
-
-            switch (OpCodeId)
-            {
-                case OpCodes.Add:
-                case OpCodes.Sub:
-                case OpCodes.Mul:
-                case OpCodes.Mtv:
-                    WriteMpiMatrix(fileNameA, _dataGridViewMatrixA.TheData);
-                    WriteMpiMatrix(fileNameB, _dataGridViewMatrixB.TheData);
-                    break;
-                case OpCodes.Rot:
-                case OpCodes.Inv:
-                case OpCodes.Mov:
-                case OpCodes.Det:
-                    WriteMpiMatrix(fileNameA, _dataGridViewMatrixA.TheData);
-                    break;
-                case OpCodes.One:
-                case OpCodes.Nil:
-                    break;
-            }
-            string command = string.Format("/C mpiexec.exe -n {0} mpimatrix.exe {1} > {2}",
-                NumberOfProcess,
-                Script,
-                fileNameLog);
-            Debug.WriteLine(command);
-
-            DateTime start = DateTime.Now;
-            Process process = Process.Start("cmd", command);
-            //MessageBox.Show(command);
-            if (process == null) return;
-            process.WaitForExit();
-
-            DateTime end = DateTime.Now;
-
-            switch (OpCodeId)
-            {
-                case OpCodes.Add:
-                case OpCodes.Sub:
-                case OpCodes.Mul:
-                case OpCodes.Mtv:
-                    _dataGridViewMatrixC.TheData = ReadMpiMatrix(fileNameC);
-                    break;
-                case OpCodes.Rot:
-                case OpCodes.Inv:
-                case OpCodes.Mov:
-                case OpCodes.Det:
-                    _dataGridViewMatrixB.TheData = ReadMpiMatrix(fileNameB);
-                    break;
-                case OpCodes.One:
-                case OpCodes.Nil:
-                    _dataGridViewMatrixA.TheData = ReadMpiMatrix(fileNameA);
-                    break;
-            }
-
-            using (var reader = new StreamReader(File.Open(fileNameLog, FileMode.Open)))
-            {
-                textBoxLog.Text = await reader.ReadToEndAsync();
-            }
-
-            var timeSpan = new TimeSpan(end.Ticks - start.Ticks);
-            MessageBox.Show(timeSpan.ToString());
-        }
-
-        public void Random(double minimum, double maximum)
-        {
-            var matrix = new string[HeightA, WidthA];
-            for (int i = 0; i < matrix.GetLength(0); i++)
-                for (int j = 0; j < matrix.GetLength(1); j++)
-                {
-                    matrix[i, j] =
-                        Convert.ToInt16(minimum + (maximum - minimum)*Rnd.NextDouble())
-                            .ToString(CultureInfo.InvariantCulture);
-                }
-            _dataGridViewMatrixA.TheData = matrix;
-            matrix = new string[HeightB, WidthB];
-            for (int i = 0; i < matrix.GetLength(0); i++)
-                for (int j = 0; j < matrix.GetLength(1); j++)
-                {
-                    matrix[i, j] =
-                        Convert.ToInt16(minimum + (maximum - minimum)*Rnd.NextDouble())
-                            .ToString(CultureInfo.InvariantCulture);
-                }
-            _dataGridViewMatrixB.TheData = matrix;
         }
 
         private enum MPI_Datatype

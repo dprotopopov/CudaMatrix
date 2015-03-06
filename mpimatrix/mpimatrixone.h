@@ -81,7 +81,8 @@ void mpi_matrix_one(
 
 	T nil = (T)0;
 	T *buffer = (T*)malloc(sizeof(T)*length+1);
-	for(int j=0;j<length;j++) buffer[j]=nil;
+
+	for(int i=0;i<length;i++) buffer[i]=nil;
 	if(myrank==0) buffer[0]=(T)1;
 
 	for(int i=0;i<rank-1;i++){

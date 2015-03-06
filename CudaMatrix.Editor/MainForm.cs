@@ -1,11 +1,12 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace CudaMatrix.Editor
+namespace Matrix.Editor
 {
     public partial class MainForm : Form
     {
-        static readonly RandomDialog RandomDialog = new RandomDialog();
+        private static readonly RandomDialog RandomDialog = new RandomDialog();
+
         public MainForm()
         {
             InitializeComponent();
@@ -37,7 +38,7 @@ namespace CudaMatrix.Editor
             var child = ActiveMdiChild as EditorForm;
             if (child == null) return;
             if (RandomDialog.ShowDialog() != DialogResult.OK) return;
-            child.Random(RandomDialog.Minimum,RandomDialog.Maximum);
+            child.Random(RandomDialog.Minimum, RandomDialog.Maximum);
         }
 
         private void newMpiEditorForm_Click(object sender, EventArgs e)

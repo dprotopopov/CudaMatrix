@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Windows.Forms;
 
-namespace CudaMatrix.Editor
+namespace Matrix.Editor
 {
     public partial class RandomDialog : Form
     {
@@ -15,6 +15,7 @@ namespace CudaMatrix.Editor
             get { return Convert.ToDouble(numericUpDownMaximum.Value); }
             set { numericUpDownMaximum.Value = Convert.ToDecimal(value); }
         }
+
         public double Minimum
         {
             get { return Convert.ToDouble(numericUpDownMinimum.Value); }
