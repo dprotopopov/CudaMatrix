@@ -140,9 +140,15 @@
     <ClInclude Include="mpimatrixmtv.h" />
     <ClInclude Include="mpimatrixrot.h" />
     <ClInclude Include="mpimatrixsub.h" />
+    <ClInclude Include="mycom.h" />
+    <ClInclude Include="myio.h" />
+    <ClInclude Include="mynet.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="mpimatrix2.cpp" />
+    <ClCompile Include="mycom.cpp" />
+    <ClCompile Include="myio.cpp" />
+    <ClCompile Include="mynet.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

@@ -1,8 +1,14 @@
+D:\PROJECTS\CUDAMATRIX\MPIMATRIX\X64\RELEASE\MYNET.OBJ
+D:\PROJECTS\CUDAMATRIX\MPIMATRIX\X64\RELEASE\MYIO.OBJ
+D:\PROJECTS\CUDAMATRIX\MPIMATRIX\X64\RELEASE\MYCOM.OBJ
 D:\PROJECTS\CUDAMATRIX\MPIMATRIX\X64\RELEASE\MPIMATRIX.OBJ
 D:\PROJECTS\CUDAMATRIX\MPIMATRIX\X64\RELEASE\VC110.PDB
-T:\MPIMATRIX.EXE
-T:\MPIMATRIX.PDB
+D:\PROJECTS\CUDAMATRIX\X64\RELEASE\MPIMATRIX.EXE
+D:\PROJECTS\CUDAMATRIX\X64\RELEASE\MPIMATRIX.PDB
 D:\Projects\CudaMatrix\mpimatrix\x64\Release\mpimatrix.obj
+D:\Projects\CudaMatrix\mpimatrix\x64\Release\mycom.obj
+D:\Projects\CudaMatrix\mpimatrix\x64\Release\myio.obj
+D:\Projects\CudaMatrix\mpimatrix\x64\Release\mynet.obj
 D:\Projects\CudaMatrix\mpimatrix\x64\Release\cl.command.1.tlog
 D:\Projects\CudaMatrix\mpimatrix\x64\Release\CL.read.1.tlog
 D:\Projects\CudaMatrix\mpimatrix\x64\Release\CL.write.1.tlog
@@ -14,3 +20,5 @@ D:\Projects\CudaMatrix\mpimatrix\x64\Release\link.command.1.tlog
 D:\Projects\CudaMatrix\mpimatrix\x64\Release\link.read.1.tlog
 D:\Projects\CudaMatrix\mpimatrix\x64\Release\link.write.1.tlog
 D:\Projects\CudaMatrix\mpimatrix\x64\Release\vc110.pdb
+D:\Projects\CudaMatrix\x64\Release\mpimatrix.pdb
+D:\Projects\CudaMatrix\x64\Release\mpimatrix.exe

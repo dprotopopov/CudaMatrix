@@ -1,13 +1,13 @@
-﻿Сборка начата 20.06.2014 23:08:33.
-     1>Проект "D:\Projects\CudaMatrix\calculator\calculator.vcxproj" в узле 2 (целевые объекты Rebuild).
+﻿Построение начато 26.05.2015 9:36:06.
+     1>Проект "D:\Projects\CudaMatrix\calculator\calculator.vcxproj" в узле 3 (целевые объекты Rebuild).
      1>BisonTarget:
          Process sample bison file
-         cmd.exe /C "R:\Temp\tmpee0c11563b264f99881a6fc2a5335ed7.cmd"
+         cmd.exe /C "R:\Temp\tmpa3056ada9a78403db90fcfb500c9c914.cmd"
          start /B /WAIT /D "D:\Projects\CudaMatrix\calculator\" win_bison.exe --output="sample.tab.cpp" --defines="sample.tab.h" "sample.y"
                
        FlexTarget:
          Process sample flex file
-         cmd.exe /C "R:\Temp\tmpdfa0addf373c49fe93af0b3f03bd7633.cmd"
+         cmd.exe /C "R:\Temp\tmp7b9a0a1e7cc940479c429f1c47eca038.cmd"
          start /B /WAIT /D "D:\Projects\CudaMatrix\calculator\" win_flex.exe --wincompat --outfile="sample.flex.cpp" "sample.l"
                
        ClCompile:
@@ -24,4 +24,4 @@
 
 Построение успешно завершено.
 
-Затраченное время: 00:00:02.33
+Затраченное время: 00:00:05.10

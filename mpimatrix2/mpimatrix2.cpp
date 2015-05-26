@@ -1,6 +1,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 #include <mpi.h>
+#include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <assert.h>
@@ -15,16 +16,27 @@
 #include "mpimatrixmtv.h"
 #include "mpimatrixone.h"
 #include "mpimatrixnil.h"
+#include "mycom.h"
+#include "mynet.h"
+#include "myio.h"
+
+static char pname[MPI_MAX_PROCESSOR_NAME];
+static char vname[48] = "mpimatrix";
+static char sname[48];
+static FILE *Fi = NULL;
+static FILE *Fo = NULL;
 
 int main(int argc, char** argv){
-	/* Иницилизация MPI */
-	MPI_Init(&argc, &argv);
+	int np;     /* Общее количество процессов */
+	int mp;    /* Номер текущего процесса */
+	int nl, ier;
+	double tick, time;
 
-	int nrank;     /* Общее количество процессов */
-	int myrank;    /* Номер текущего процесса */
+	MyNetInit(&argc,&argv,&np,&mp,&nl,pname,&tick);
 
-	MPI_Comm_size(MPI_COMM_WORLD, &nrank);
-	MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+	sprintf(sname,"%s.p%02d",vname,mp);
+	ier = fopen_m(&Fo,sname,"wt");
+	if (ier!=0) mpierr("Protocol file not opened",1);
 
 	char *opCode = (argc>1)?argv[1]:NULL;
 	char *fileName1 = (argc>2)?argv[2]:NULL;
@@ -37,7 +49,6 @@ int main(int argc, char** argv){
 	char *height = (argc>2)?argv[2]:NULL;
 	char *width = (argc>3)?argv[3]:NULL;
 
-	double time;
 	long counter = 0; // Количество выполненых элементарных операций процессом
 
 	time = MPI_Wtime(); // Начало отсчёта времени выполнения операции
@@ -72,7 +83,7 @@ int main(int argc, char** argv){
 	else if(opCode!=NULL && strcmp(opCode,"nil")==0 && height!=NULL && width!=NULL && fileName3!=NULL){
 		mpi_matrix_nil<double>(atoi(height),atoi(width),fileName3,&counter);
 	}
-	else if (myrank == 0) {
+	else if (mp == 0) {
 		printf("Usage :\t%s add inputfilename1 inputfilename2 outputfilename \n", argv[0]);
 		printf("Usage :\t%s sub inputfilename1 inputfilename2 outputfilename \n", argv[0]);
 		printf("Usage :\t%s mul inputfilename1 inputfilename2 outputfilename \n", argv[0]);
@@ -93,13 +104,17 @@ int main(int argc, char** argv){
 
 	time = MPI_Wtime() - time; // Окончание отсчёта времени выполнения операции
 
+	fprintf(Fo,"%d of %d process execute %ld operations %le seconds\n", mp, np, counter, time);fflush(Fo);
+
 	long totalCounter = 0; // Количество выполненых элементарных операций программой
 	MPI_Allreduce(&counter,&totalCounter,1,MPI_LONG,MPI_SUM,MPI_COMM_WORLD);
 
-	if (myrank == 0) {
+	if (mp == 0) {
 		// Сохранение записи о количестве выполненных элементарных операций и времени выполнения операции
-		printf("%d %ld %le\n", nrank, totalCounter, time);
+		printf("%d process execute %ld operations %le seconds\n", np, totalCounter, time);
 	}
+
+	ier = fclose_m(&Fo);
 
 	MPI_Finalize();
 	exit(0);
