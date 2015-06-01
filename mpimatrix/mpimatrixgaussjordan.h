@@ -8,8 +8,10 @@
 * на знак чётности дополнительной перестановки строк
 */
 #include <mpi.h>
+#include <stdlib.h>
 #include <assert.h>
 #include "mpimatrixfile.h"
+#include "minmax.h"
 
 #ifndef __MPIMATRIXGAUSSJORDAN_H
 #define __MPIMATRIXGAUSSJORDAN_H
@@ -25,11 +27,11 @@ void mpi_matrix_gaussjordan_step(
 	int height, int width, int length2, // Размеры основной матрицы и локальный размер дополнительной матрицы
 	MPI_Datatype dataType, // Тип для обмена данными
 	int *bounds, // Границы номеров столбцов основной матрицы по процессам
-	int myrank, int wrank, // Номер процесса и количество используемых процессов
+	int mp, int wrank, // Номер процесса и количество используемых процессов
 	long *counter) // Счётчик количества операций
 {
-	int start = bounds[myrank];
-	int end = bounds[myrank+1];
+	int start = bounds[mp];
+	int end = bounds[mp+1];
 	int length=end-start;
 
 	// Копирование ведущего столбца основной матрицы и дистрибуция его между всеми процессами
@@ -95,11 +97,11 @@ void mpi_matrix_indexOfFirstNotZero(
 	int *totalIndex, // Преаллокированный буфер для рассчёта индексов ненулевых элементов
 	int height, int width, // Размеры матрицы
 	MPI_Datatype dataType, // Тип для обмена данными
-	int myrank, int wrank, // Номер процесса и количество используемых процессов
+	int mp, int wrank, // Номер процесса и количество используемых процессов
 	long *counter) // Счётчик количества операций
 {
-	int start = width*myrank/wrank;
-	int end = width*(myrank+1)/wrank;
+	int start = width*mp/wrank;
+	int end = width*(mp+1)/wrank;
 	int length=end-start;
 
 	// Находим индексы колонок ненулевых элементов
@@ -127,19 +129,17 @@ void mpi_matrix_gaussjordan(
 	int *totalIndex, // Преаллокированный буфер для рассчёта индексов ненулевых элементов
 	int height, int width, int length2, // Размеры основной матрицы и локальный размер дополнительной матрицы
 	MPI_Datatype dataType, // Тип для обмена данными
-	int myrank, int wrank, // Номер процесса и количество используемых процессов
+	int mp, int wrank, // Номер процесса и количество используемых процессов
 	long *counter) // Счётчик количества операций
 {
 	T *columnBuffer = (T*)malloc(sizeof(T)*height+1);
-	//int *localIndex = (int*)malloc(sizeof(int)*height+1);
-	//int *totalIndex = (int*)malloc(sizeof(int)*height+1);
 	int *bounds = (int *)malloc(sizeof(int)*(wrank+1));
 	for(int i=0;i<=wrank;i++) bounds[i] = width*i/wrank;
-	int start = bounds[myrank];
-	int end = bounds[myrank+1];
+	int start = bounds[mp];
+	int end = bounds[mp+1];
 	int length=end-start;
-	int start1 = height*myrank/wrank;
-	int end1 = height*(myrank+1)/wrank;
+	int start1 = height*mp/wrank;
+	int end1 = height*(mp+1)/wrank;
 	int length1=end1-start1;
 
 	*totalDiv = (T)1;
@@ -154,7 +154,7 @@ void mpi_matrix_gaussjordan(
 			totalIndex, 
 			height, width, 
 			dataType, 
-			myrank, wrank, 
+			mp, wrank, 
 			counter);
 
 		// Находим следующий минимальный индекс ненулевого элемента
@@ -189,7 +189,7 @@ void mpi_matrix_gaussjordan(
 			height, width, length2,// Размеры основной матрицы и локальный размер дополнительной матрицы
 			dataType, // Тип для обмена данными
 			bounds, // Границы номеров столбцов основной матрицы по процессам
-			myrank, wrank, // Номер процесса и количество используемых процессов
+			mp, wrank, // Номер процесса и количество используемых процессов
 			counter); // Счётчик количества операций
 	}
 

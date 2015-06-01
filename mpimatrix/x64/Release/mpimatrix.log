@@ -1,5 +1,5 @@
-﻿Построение начато 26.05.2015 9:36:11.
-     1>Проект "D:\Projects\CudaMatrix\mpimatrix\mpimatrix.vcxproj" в узле 3 (целевые объекты Rebuild).
+﻿Построение начато 01.06.2015 11:55:56.
+     1>Проект "D:\Projects\CudaMatrix\mpimatrix\mpimatrix.vcxproj" в узле 2 (целевые объекты Rebuild).
      1>ClCompile:
          C:\Program Files (x86)\Microsoft Visual Studio 11.0\VC\bin\x86_amd64\CL.exe /c /Zi /nologo /W1 /WX- /O2 /Oi /Gm- /MD /GS /fp:precise /Zc:wchar_t /Zc:forScope /Fo"x64\Release\\" /Fd"x64\Release\vc110.pdb" /Gd /TP /errorReport:prompt mpimatrix.cpp mycom.cpp myio.cpp mynet.cpp
          mpimatrix.cpp
@@ -18,4 +18,4 @@
 
 Построение успешно завершено.
 
-Затраченное время: 00:00:02.31
+Затраченное время: 00:00:02.02

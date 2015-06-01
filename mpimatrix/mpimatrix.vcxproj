@@ -129,6 +129,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="minmax.h" />
     <ClInclude Include="mpimatrixadd.h" />
     <ClInclude Include="mpimatrixdet.h" />
     <ClInclude Include="mpimatrixfile.h" />

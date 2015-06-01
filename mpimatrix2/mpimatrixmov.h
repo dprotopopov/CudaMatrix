@@ -5,38 +5,27 @@
 */
 #include <mpi.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 #include "mpimatrixfile.h"
+#include "minmax.h"
 
 #ifndef __MPIMATRIXMOV_H
 #define __MPIMATRIXMOV_H
-
-#ifndef MINMAX
-#define MINMAX
-
-#ifndef max
-#define max(a,b)            (((a) > (b)) ? (a) : (b))
-#endif
-
-#ifndef min
-#define min(a,b)            (((a) < (b)) ? (a) : (b))
-#endif
-
-#endif  /* MINMAX */
 
 template <typename T>
 void mpi_matrix_mov(
 	char *inputFileName, 
 	char *outputFileName, 
-	long *counter) // Счётчик количества операций
+	FILE *log, long *counter) // Счётчик количества операций
 {
-	int nrank;     /* Общее количество процессов */
-	int myrank;    /* Номер текущего процесса */
+	int np;    /* Общее количество процессов */
+	int mp;    /* Номер текущего процесса */
 
-	MPI_Comm_size(MPI_COMM_WORLD, &nrank);
-	MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+	MPI_Comm_size(MPI_COMM_WORLD, &np);
+	MPI_Comm_rank(MPI_COMM_WORLD, &mp);
 
-	if(myrank>0) return;
+	if(mp>0) return;
 
 	FILE *file1 = fopen(inputFileName,"rb");
 	FILE *file2 = fopen(outputFileName,"wb");
@@ -58,10 +47,20 @@ void mpi_matrix_mov(
 
 	T *buffer = (T*)malloc(sizeof(T)*bufferSize+1);
 
-	for(int i=0;i<count;i++){
+	// Начало записи лога
+	fprintf(log,"process %d of %d\n", mp, np);
+	fprintf(log,"function %s\n", __FUNCTION__); // http://stackoverflow.com/questions/679021/how-to-find-the-name-of-the-current-function-at-runtime
+
+	for(int j=0;j<count;j++){
 		fread(buffer,sizeof(T),bufferSize,file1);
+		fprintf(log,"operand:\t"); for(int i=0;i<bufferSize;i++) fprintf(log,"%le\t", (double)buffer[i]); fprintf(log,"\n");
+		
 		fwrite(buffer,sizeof(T),bufferSize,file2);
+		fprintf(log,"result:\t"); for(int i=0;i<bufferSize;i++) fprintf(log,"%le\t", (double)buffer[i]); fprintf(log,"\n");
 	}
+
+	fflush(log);
+	// Завершение записи лога
 
 	free(buffer);
 

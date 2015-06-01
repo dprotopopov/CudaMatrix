@@ -28,7 +28,7 @@ static FILE *Fo = NULL;
 
 int main(int argc, char** argv){
 
-	int np;     /* Общее количество процессов */
+	int np;    /* Общее количество процессов */
 	int mp;    /* Номер текущего процесса */
 	int nl, ier;
 	double tick, time;
@@ -112,7 +112,7 @@ int main(int argc, char** argv){
 
 	if (mp == 0) {
 		// Сохранение записи о количестве выполненных элементарных операций и времени выполнения операции
-		printf("%d process execute %ld operations %le seconds\n", np, totalCounter, time);
+		printf("execute %ld operations %le seconds\n", totalCounter, time);
 	}
 
 	ier = fclose_m(&Fo);

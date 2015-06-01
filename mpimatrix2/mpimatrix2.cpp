@@ -27,7 +27,7 @@ static FILE *Fi = NULL;
 static FILE *Fo = NULL;
 
 int main(int argc, char** argv){
-	int np;     /* Общее количество процессов */
+	int np;    /* Общее количество процессов */
 	int mp;    /* Номер текущего процесса */
 	int nl, ier;
 	double tick, time;
@@ -54,34 +54,34 @@ int main(int argc, char** argv){
 	time = MPI_Wtime(); // Начало отсчёта времени выполнения операции
 
 	if(opCode!=NULL && strcmp(opCode,"add")==0 && fileName1!=NULL && fileName2!=NULL && fileName3!=NULL){
-		mpi_matrix_add<double>(fileName1,fileName2,fileName3,&counter);
+		mpi_matrix_add<double>(fileName1,fileName2,fileName3,Fo,&counter);
 	}
 	else if(opCode!=NULL && strcmp(opCode,"sub")==0 && fileName1!=NULL && fileName2!=NULL && fileName3!=NULL){
-		mpi_matrix_sub<double>(fileName1,fileName2,fileName3,&counter);
+		mpi_matrix_sub<double>(fileName1,fileName2,fileName3,Fo,&counter);
 	}
 	else if(opCode!=NULL && strcmp(opCode,"mul")==0 && fileName1!=NULL && fileName2!=NULL && fileName3!=NULL){
-		mpi_matrix_mul<double>(fileName1,fileName2,fileName3,&counter);
+		mpi_matrix_mul<double>(fileName1,fileName2,fileName3,Fo,&counter);
 	}
 	else if(opCode!=NULL && strcmp(opCode,"mtv")==0 && fileName1!=NULL && fileName2!=NULL && fileName3!=NULL){
-		mpi_matrix_mtv<double>(fileName1,fileName2,fileName3,&counter);
+		mpi_matrix_mtv<double>(fileName1,fileName2,fileName3,Fo,&counter);
 	}
 	else if(opCode!=NULL && strcmp(opCode,"inv")==0 && fileName1!=NULL && fileName2!=NULL){
-		mpi_matrix_inv<double>(fileName1,fileName2,&counter);
+		mpi_matrix_inv<double>(fileName1,fileName2,Fo,&counter);
 	}
 	else if(opCode!=NULL && strcmp(opCode,"mov")==0 && fileName1!=NULL && fileName2!=NULL){
-		mpi_matrix_mov<double>(fileName1,fileName2,&counter);
+		mpi_matrix_mov<double>(fileName1,fileName2,Fo,&counter);
 	}
 	else if(opCode!=NULL && strcmp(opCode,"rot")==0 && fileName1!=NULL && fileName2!=NULL){
-		mpi_matrix_rot<double>(fileName1,fileName2,&counter);
+		mpi_matrix_rot<double>(fileName1,fileName2,Fo,&counter);
 	}
 	else if(opCode!=NULL && strcmp(opCode,"det")==0 && fileName1!=NULL && fileName2!=NULL){
-		mpi_matrix_det<double>(fileName1,fileName2,&counter);
+		mpi_matrix_det<double>(fileName1,fileName2,Fo,&counter);
 	}
 	else if(opCode!=NULL && strcmp(opCode,"one")==0 && rank!=NULL && fileName2!=NULL){
-		mpi_matrix_one<double>(atoi(rank),fileName2,&counter);
+		mpi_matrix_one<double>(atoi(rank),fileName2,Fo,&counter);
 	}
 	else if(opCode!=NULL && strcmp(opCode,"nil")==0 && height!=NULL && width!=NULL && fileName3!=NULL){
-		mpi_matrix_nil<double>(atoi(height),atoi(width),fileName3,&counter);
+		mpi_matrix_nil<double>(atoi(height),atoi(width),fileName3,Fo,&counter);
 	}
 	else if (mp == 0) {
 		printf("Usage :\t%s add inputfilename1 inputfilename2 outputfilename \n", argv[0]);
@@ -104,14 +104,14 @@ int main(int argc, char** argv){
 
 	time = MPI_Wtime() - time; // Окончание отсчёта времени выполнения операции
 
-	fprintf(Fo,"%d of %d process execute %ld operations %le seconds\n", mp, np, counter, time);fflush(Fo);
+	fprintf(Fo,"process %d of %d execute %ld operations %le seconds\n", mp, np, counter, time);fflush(Fo);
 
 	long totalCounter = 0; // Количество выполненых элементарных операций программой
 	MPI_Allreduce(&counter,&totalCounter,1,MPI_LONG,MPI_SUM,MPI_COMM_WORLD);
 
 	if (mp == 0) {
 		// Сохранение записи о количестве выполненных элементарных операций и времени выполнения операции
-		printf("%d process execute %ld operations %le seconds\n", np, totalCounter, time);
+		printf("execute %ld operations %le seconds\n", totalCounter, time);
 	}
 
 	ier = fclose_m(&Fo);

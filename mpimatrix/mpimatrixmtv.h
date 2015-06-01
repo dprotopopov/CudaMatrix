@@ -5,24 +5,13 @@
 * Используется функции MPI_File_read_shared, MPI_File_read_ordered и MPI_File_write_ordered
 */
 #include <mpi.h>
+#include <stdlib.h>
 #include <assert.h>
 #include "mpimatrixfile.h"
+#include "minmax.h"
 
 #ifndef __MPIMATRIXMTV_H
 #define __MPIMATRIXMTV_H
-
-#ifndef MINMAX
-#define MINMAX
-
-#ifndef max
-#define max(a,b)            (((a) > (b)) ? (a) : (b))
-#endif
-
-#ifndef min
-#define min(a,b)            (((a) < (b)) ? (a) : (b))
-#endif
-
-#endif  /* MINMAX */
 
 template <typename T>
 void mpi_matrix_mtv(
@@ -31,11 +20,11 @@ void mpi_matrix_mtv(
 	char *outputFileName, 
 	long *counter) // Счётчик количества операций
 {
-	int nrank;     /* Общее количество процессов */
-	int myrank;    /* Номер текущего процесса */
+	int np;    /* Общее количество процессов */
+	int mp;    /* Номер текущего процесса */
 
-	MPI_Comm_size(MPI_COMM_WORLD, &nrank);
-	MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+	MPI_Comm_size(MPI_COMM_WORLD, &np);
+	MPI_Comm_rank(MPI_COMM_WORLD, &mp);
 
 	MPI_File file1;
 	MPI_File file2;
@@ -47,10 +36,10 @@ void mpi_matrix_mtv(
 	T value;
 
 	MPI_File_open(MPI_COMM_WORLD,inputFileName1,MPI_MODE_RDONLY|MPI_MODE_SEQUENTIAL,MPI_INFO_NULL, &file1);
-	if(myrank==0) memset( &status1, 0x00, sizeof(MPI_Status) );
-	if(myrank==0) MPI_File_read_shared(file1, &header, sizeof(mpiMatrixHeader), MPI_BYTE, &status1);
-	if(myrank==0) MPI_Get_count( &status1, MPI_INT, &count1 );
-	if(nrank>1) MPI_Bcast(&header, sizeof(mpiMatrixHeader), MPI_BYTE, 0, MPI_COMM_WORLD);
+	if(mp==0) memset( &status1, 0x00, sizeof(MPI_Status) );
+	if(mp==0) MPI_File_read_shared(file1, &header, sizeof(mpiMatrixHeader), MPI_BYTE, &status1);
+	if(mp==0) MPI_Get_count( &status1, MPI_INT, &count1 );
+	if(np>1) MPI_Bcast(&header, sizeof(mpiMatrixHeader), MPI_BYTE, 0, MPI_COMM_WORLD);
 
 	assert(header.height==1);
 	assert(header.width==1);
@@ -59,17 +48,17 @@ void mpi_matrix_mtv(
 	MPI_Datatype dataType = header.dataType;
 	MPI_Offset offset = header.offset;
 
-	if(myrank==0) memset( &status1, 0x00, sizeof(MPI_Status) );
-	if(myrank==0) MPI_File_read_shared(file1, &value, 1, dataType, &status1);
-	if(myrank==0) MPI_Get_count( &status1, MPI_INT, &count1 );
-	if(nrank>1) MPI_Bcast(&value, 1, dataType, 0, MPI_COMM_WORLD);
+	if(mp==0) memset( &status1, 0x00, sizeof(MPI_Status) );
+	if(mp==0) MPI_File_read_shared(file1, &value, 1, dataType, &status1);
+	if(mp==0) MPI_Get_count( &status1, MPI_INT, &count1 );
+	if(np>1) MPI_Bcast(&value, 1, dataType, 0, MPI_COMM_WORLD);
 	MPI_File_close(&file1);
 
 	MPI_File_open(MPI_COMM_WORLD,inputFileName2,MPI_MODE_RDONLY|MPI_MODE_SEQUENTIAL,MPI_INFO_NULL, &file1);
-	if(myrank==0) memset( &status1, 0x00, sizeof(MPI_Status) );
-	if(myrank==0) MPI_File_read_shared(file1, &header, sizeof(mpiMatrixHeader), MPI_BYTE, &status1);
-	if(myrank==0) MPI_Get_count( &status1, MPI_INT, &count1 );
-	if(nrank>1) MPI_Bcast(&header, sizeof(mpiMatrixHeader), MPI_BYTE, 0, MPI_COMM_WORLD);
+	if(mp==0) memset( &status1, 0x00, sizeof(MPI_Status) );
+	if(mp==0) MPI_File_read_shared(file1, &header, sizeof(mpiMatrixHeader), MPI_BYTE, &status1);
+	if(mp==0) MPI_Get_count( &status1, MPI_INT, &count1 );
+	if(np>1) MPI_Bcast(&header, sizeof(mpiMatrixHeader), MPI_BYTE, 0, MPI_COMM_WORLD);
 
 	assert(header.dataType==dataType);
 	assert(header.offset==sizeof(mpiMatrixHeader));
@@ -78,7 +67,7 @@ void mpi_matrix_mtv(
 	int height = header.height;
 
 	int total = width*height;
-	int wrank = min(nrank, total); // Количество реально используемых процессов
+	int wrank = min(np, total); // Количество реально используемых процессов
 
 	// Создаём группу из реально используемых процессов и коммуникатор этой группы
 	MPI_Group world_group;
@@ -92,20 +81,20 @@ void mpi_matrix_mtv(
 	free(ranks);
 
 	// Переоткрываем файлы если требуется
-	if(wrank<nrank) MPI_File_close(&file1);
-	if(myrank>=wrank) return;
-	if(wrank<nrank) MPI_File_open(comm,inputFileName2,MPI_MODE_RDONLY,MPI_INFO_NULL, &file1);
-	if(wrank<nrank) MPI_File_seek_shared(file1,offset,MPI_SEEK_SET);
+	if(wrank<np) MPI_File_close(&file1);
+	if(mp>=wrank) return;
+	if(wrank<np) MPI_File_open(comm,inputFileName2,MPI_MODE_RDONLY,MPI_INFO_NULL, &file1);
+	if(wrank<np) MPI_File_seek_shared(file1,offset,MPI_SEEK_SET);
 
-	if(myrank==0) MPI_File_delete(outputFileName, MPI_INFO_NULL);
+	if(mp==0) MPI_File_delete(outputFileName, MPI_INFO_NULL);
 	MPI_File_open(comm,outputFileName,MPI_MODE_WRONLY|MPI_MODE_SEQUENTIAL|MPI_MODE_CREATE,MPI_INFO_NULL, &file2);
 
-	if(myrank==0) memset( &status2, 0x00, sizeof(MPI_Status) );
-	if(myrank==0) MPI_File_write_shared(file2, &header, sizeof(mpiMatrixHeader), MPI_BYTE, &status2);
-	if(myrank==0) MPI_Get_count( &status2, MPI_INT, &count2 );
+	if(mp==0) memset( &status2, 0x00, sizeof(MPI_Status) );
+	if(mp==0) MPI_File_write_shared(file2, &header, sizeof(mpiMatrixHeader), MPI_BYTE, &status2);
+	if(mp==0) MPI_Get_count( &status2, MPI_INT, &count2 );
 
-	int start = total*myrank/wrank;
-	int end = total*(myrank+1)/wrank;
+	int start = total*mp/wrank;
+	int end = total*(mp+1)/wrank;
 	int length=end-start;
 	int bufferSize = length;
 

@@ -5,40 +5,29 @@
 */
 #include <mpi.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 #include "mpimatrixfile.h"
+#include "minmax.h"
 
 #ifndef __MPIMATRIXONE_H
 #define __MPIMATRIXONE_H
-
-#ifndef MINMAX
-#define MINMAX
-
-#ifndef max
-#define max(a,b)            (((a) > (b)) ? (a) : (b))
-#endif
-
-#ifndef min
-#define min(a,b)            (((a) < (b)) ? (a) : (b))
-#endif
-
-#endif  /* MINMAX */
 
 template <typename T>
 void mpi_matrix_one(
 	int rank, 
 	char *outputFileName, 
-	long *counter) // Счётчик количества операций
+	FILE *log, long *counter) // Счётчик количества операций
 {
-	int nrank;     /* Общее количество процессов */
-	int myrank;    /* Номер текущего процесса */
+	int np;    /* Общее количество процессов */
+	int mp;    /* Номер текущего процесса */
 
-	MPI_Comm_size(MPI_COMM_WORLD, &nrank);
-	MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+	MPI_Comm_size(MPI_COMM_WORLD, &np);
+	MPI_Comm_rank(MPI_COMM_WORLD, &mp);
 
-	if(myrank>0) return;
+	if(mp>0) return;
 
-	assert(myrank==0);
+	assert(mp==0);
 
 	mpiMatrixHeader header;
 	MPI_Datatype dataType = MPI_DOUBLE;
@@ -65,10 +54,23 @@ void mpi_matrix_one(
 	buffer[0]=one;
 	for(int i=1;i<=rank;i++) buffer[i]=nil;
 
-	for(int i=0;i<rank-1;i++){
+	// Начало записи лога
+	fprintf(log,"process %d of %d\n", mp, np);
+	fprintf(log,"function %s\n", __FUNCTION__); // http://stackoverflow.com/questions/679021/how-to-find-the-name-of-the-current-function-at-runtime
+
+	for(int j=0;j<rank-1;j++){
 		fwrite(buffer,sizeof(T),bufferSize,file);
+		fprintf(log,"result:\t"); for(int i=0;i<bufferSize;i++) fprintf(log,"%le\t", (double)buffer[i]); fprintf(log,"\n");
 	}
-	if(rank>0) fwrite(&one,1,sizeof(T),file);
+
+
+	if(rank>0) {
+		fwrite(&one,1,sizeof(T),file);
+		fprintf(log,"result:\t"); fprintf(log,"%le\t", (double)one); fprintf(log,"\n");
+	}
+
+	fflush(log);
+	// Завершение записи лога
 
 	free(buffer);
 	fclose(file);

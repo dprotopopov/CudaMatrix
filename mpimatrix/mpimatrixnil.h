@@ -4,24 +4,13 @@
  * Используется функция MPI_File_write_ordered
  */
 #include <mpi.h>
+#include <stdlib.h>
 #include <assert.h>
 #include "mpimatrixfile.h"
+#include "minmax.h"
 
 #ifndef __MPIMATRIXNIL_H
 #define __MPIMATRIXNIL_H
-
-#ifndef MINMAX
-#define MINMAX
-
-#ifndef max
-#define max(a,b)            (((a) > (b)) ? (a) : (b))
-#endif
-
-#ifndef min
-#define min(a,b)            (((a) < (b)) ? (a) : (b))
-#endif
-
-#endif  /* MINMAX */
 
 template <typename T>
 void mpi_matrix_nil(
@@ -29,14 +18,14 @@ void mpi_matrix_nil(
 	char *outputFileName, 
 	long *counter) // Счётчик количества операций
 {
-	int nrank;     /* Общее количество процессов */
-	int myrank;    /* Номер текущего процесса */
+	int np;    /* Общее количество процессов */
+	int mp;    /* Номер текущего процесса */
 
-	MPI_Comm_size(MPI_COMM_WORLD, &nrank);
-	MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+	MPI_Comm_size(MPI_COMM_WORLD, &np);
+	MPI_Comm_rank(MPI_COMM_WORLD, &mp);
 
 	int total = width*height;
-	int wrank = min(nrank, total); // Количество реально используемых процессов
+	int wrank = min(np, total); // Количество реально используемых процессов
 
 	MPI_Group world_group;
 	MPI_Group group;
@@ -48,7 +37,7 @@ void mpi_matrix_nil(
 	MPI_Comm_create(MPI_COMM_WORLD,group,&comm);
 	free(ranks);
 
-	if(myrank>=wrank) return;
+	if(mp>=wrank) return;
 
 	MPI_File file;
 	MPI_Status status;
@@ -65,17 +54,17 @@ void mpi_matrix_nil(
 	header.dataType = dataType;
 	header.offset = sizeof(mpiMatrixHeader);
 
-	if(myrank==0) MPI_File_delete(outputFileName, MPI_INFO_NULL);
+	if(mp==0) MPI_File_delete(outputFileName, MPI_INFO_NULL);
 	MPI_File_open(comm,outputFileName,MPI_MODE_WRONLY|MPI_MODE_SEQUENTIAL|MPI_MODE_CREATE,MPI_INFO_NULL, &file);
 
 	MPI_Offset offset = header.offset;
 
-	if(myrank==0) memset( &status, 0x00, sizeof(MPI_Status) );
-	if(myrank==0) MPI_File_write_shared(file, &header, sizeof(mpiMatrixHeader), MPI_BYTE, &status);
-	if(myrank==0) MPI_Get_count( &status, MPI_INT, &count );
+	if(mp==0) memset( &status, 0x00, sizeof(MPI_Status) );
+	if(mp==0) MPI_File_write_shared(file, &header, sizeof(mpiMatrixHeader), MPI_BYTE, &status);
+	if(mp==0) MPI_Get_count( &status, MPI_INT, &count );
 
-	int start = total*myrank/wrank;
-	int end = total*(myrank+1)/wrank;
+	int start = total*mp/wrank;
+	int end = total*(mp+1)/wrank;
 	int length=end-start;
 	int bufferSize = length;
 

@@ -7,8 +7,10 @@
 */
 #include <mpi.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <assert.h>
 #include "mpimatrixfile.h"
+#include "minmax.h"
 
 #ifndef __MPIMATRIXMUL_H
 #define __MPIMATRIXMUL_H
@@ -18,13 +20,13 @@ void mpi_matrix_mul(
 	char *inputFileName1, 
 	char *inputFileName2, 
 	char *outputFileName, 
-	long *counter) // Счётчик количества операций
+	FILE *log, long *counter) // Счётчик количества операций
 {
-	int nrank;     /* Общее количество процессов */
-	int myrank;    /* Номер текущего процесса */
+	int np;    /* Общее количество процессов */
+	int mp;    /* Номер текущего процесса */
 
-	MPI_Comm_size(MPI_COMM_WORLD, &nrank);
-	MPI_Comm_rank(MPI_COMM_WORLD, &myrank);
+	MPI_Comm_size(MPI_COMM_WORLD, &np);
+	MPI_Comm_rank(MPI_COMM_WORLD, &mp);
 
 	FILE *file1=NULL;
 	FILE *file2=NULL;
@@ -32,9 +34,9 @@ void mpi_matrix_mul(
 	mpiMatrixHeader header1;
 	mpiMatrixHeader header2;
 
-	if(myrank==0) file2 = fopen(inputFileName2,"rb");
-	if(myrank==0) fread(&header2,1,sizeof(mpiMatrixHeader),file2);
-	if(nrank>1) MPI_Bcast(&header2,sizeof(mpiMatrixHeader),MPI_BYTE,0,MPI_COMM_WORLD);
+	if(mp==0) file2 = fopen(inputFileName2,"rb");
+	if(mp==0) fread(&header2,1,sizeof(mpiMatrixHeader),file2);
+	if(np>1) MPI_Bcast(&header2,sizeof(mpiMatrixHeader),MPI_BYTE,0,MPI_COMM_WORLD);
 
 	int height2 = header2.height;
 	int width2 = header2.width;
@@ -42,7 +44,7 @@ void mpi_matrix_mul(
 	MPI_Datatype dataType = header2.dataType;
 	MPI_Offset offset = header2.offset;
 
-	int wrank = min(nrank, width2); // Количество реально используемых процессов
+	int wrank = min(np, width2); // Количество реально используемых процессов
 
 	// Создаём группу из реально используемых процессов и коммуникатор этой группы
 	MPI_Group world_group;
@@ -55,11 +57,11 @@ void mpi_matrix_mul(
 	MPI_Comm_create(MPI_COMM_WORLD,group,&comm);
 	free(ranks);
 
-	if(myrank>=wrank) return;
+	if(mp>=wrank) return;
 
-	if(myrank==0) file1 = fopen(inputFileName1,"rb");
-	if(myrank==0) fread(&header1,1,sizeof(mpiMatrixHeader),file1);
-	if(nrank>1) MPI_Bcast(&header1,sizeof(mpiMatrixHeader),MPI_BYTE,0,comm);
+	if(mp==0) file1 = fopen(inputFileName1,"rb");
+	if(mp==0) fread(&header1,1,sizeof(mpiMatrixHeader),file1);
+	if(np>1) MPI_Bcast(&header1,sizeof(mpiMatrixHeader),MPI_BYTE,0,comm);
 
 	assert(header1.dataType==header2.dataType);
 	assert(header1.width==header2.height);
@@ -70,8 +72,8 @@ void mpi_matrix_mul(
 	int height1 = header1.height;
 	int width1 = header1.width;
 
-	int start = width2*myrank/wrank;
-	int end = width2*(myrank+1)/wrank;
+	int start = width2*mp/wrank;
+	int end = width2*(mp+1)/wrank;
 	int length=end-start;
 	int bufferSize=max(width1,width2);
 	int bufferSize1=width1;
@@ -86,23 +88,33 @@ void mpi_matrix_mul(
 	// Считываем построчно исходный файл
 	// Каждый процесс считывает только свой диапазон колонок
 	for(int i=0;i<height2;i++){
-		if(myrank==0) fread(buffer,sizeof(T),width2,file2);
+		if(mp==0) fread(buffer,sizeof(T),width2,file2);
 		for(int j=0;j<wrank;j++) {
 			int start = width2*j/wrank;
 			int end = width2*(j+1)/wrank;
 			int count=end-start;
-			if(j==0 && myrank==0) memcpy(&buffer2[i*length],buffer,length*sizeof(T));
-			else if(myrank==0) MPI_Send(&buffer[start],count,dataType,j,0,comm);
-			else if(myrank==j) MPI_Recv(&buffer2[i*length],length,dataType,0,0,comm,MPI_STATUS_IGNORE);
+			if(j==0 && mp==0) memcpy(&buffer2[i*length],buffer,length*sizeof(T));
+			else if(mp==0) MPI_Send(&buffer[start],count,dataType,j,0,comm);
+			else if(mp==j) MPI_Recv(&buffer2[i*length],length,dataType,0,0,comm,MPI_STATUS_IGNORE);
 		}
 	}
 
-	if(myrank==0) fclose(file2);
+	if(mp==0) fclose(file2);
+
+	// Начало записи лога
+	fprintf(log,"process %d of %d\n", mp, np);
+	fprintf(log,"function %s\n", __FUNCTION__); // http://stackoverflow.com/questions/679021/how-to-find-the-name-of-the-current-function-at-runtime
+
+	fprintf(log,"operand 2:\n"); 
+	for(int i=0;i<height2;i++){
+		for(int j=0;j<length;j++) fprintf(log,"%le\t", (double)buffer2[i*length+j]);
+		fprintf(log,"\n");
+	}
 
 	header2.height = height1;
 
-	if(myrank==0) file2 = fopen(outputFileName,"wb");
-	if(myrank==0) fwrite(&header2,1,sizeof(mpiMatrixHeader),file2);
+	if(mp==0) file2 = fopen(outputFileName,"wb");
+	if(mp==0) fwrite(&header2,1,sizeof(mpiMatrixHeader),file2);
 
 	// Считываем построчно исходный файл
 	// Все процессы считывают одинаковые данные
@@ -110,8 +122,10 @@ void mpi_matrix_mul(
 	// Сохраняем построчно
 	// Каждый процесс сохраняет только свой диапазон колонок
 	for(int i=0;i<height1;i++){
-		if(myrank==0) fread(buffer1,sizeof(T),width1,file1);
-		if(nrank>1) MPI_Bcast(buffer1, width1, dataType, 0, comm);
+		if(mp==0) fread(buffer1,sizeof(T),width1,file1);
+		if(np>1) MPI_Bcast(buffer1, width1, dataType, 0, comm);
+
+		fprintf(log,"operand 1:\t"); for(int j=0;j<length;j++) fprintf(log,"%le\t", (double)buffer1[j]); fprintf(log,"\n");
 
 		for(int j=0;j<length;j++){
 			T s = (T)0;
@@ -121,20 +135,25 @@ void mpi_matrix_mul(
 			buffer3[j]=s;
 		}
 		
+		fprintf(log,"result:\t"); for(int j=0;j<length;j++) fprintf(log,"%le\t", (double)buffer3[j]); fprintf(log,"\n");
+
 		for(int j=0;j<wrank;j++) {
 			int start = width2*j/wrank;
 			int end = width2*(j+1)/wrank;
 			int count=end-start;
-			if(j==0 && myrank==0) memcpy(buffer,buffer3,length*sizeof(T));
-			else if(myrank==0) MPI_Recv(&buffer[start],count,dataType,j,0,comm,MPI_STATUS_IGNORE);
-			else if(myrank==j) MPI_Send(buffer3,length,dataType,0,0,comm);
+			if(j==0 && mp==0) memcpy(buffer,buffer3,length*sizeof(T));
+			else if(mp==0) MPI_Recv(&buffer[start],count,dataType,j,0,comm,MPI_STATUS_IGNORE);
+			else if(mp==j) MPI_Send(buffer3,length,dataType,0,0,comm);
 		}
 
-		if(myrank==0) fwrite(buffer,sizeof(T),width2,file2);
+		if(mp==0) fwrite(buffer,sizeof(T),width2,file2);
 	}
 
-	if(myrank==0) fclose(file1);
-	if(myrank==0) fclose(file2);
+	fflush(log);
+	// Завершение записи лога
+
+	if(mp==0) fclose(file1);
+	if(mp==0) fclose(file2);
 
 	free(buffer);
 	free(buffer1);
